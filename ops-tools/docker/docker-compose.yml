@@ -1,5 +1,17 @@
 version: "3.9"
 services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    privileged: true
+    user: root
+    ports:
+      - 2000:8080
+      - 50000:50000
+    container_name: jenkins
+    volumes:
+      - /home/${myname}/jenkins_compose/jenkins_configuration:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
   postgres:
     image: postgres:13.1-alpine
     environment:
@@ -11,4 +23,3 @@ services:
       - ../../data/dump:/db-dump
     ports:
       - "5432:5432"
-

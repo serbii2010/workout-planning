@@ -5,14 +5,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <include file="db/changelog/2022/09/08-02-changelog.xml"/>
-    <changeSet id="1662621517691-1" author="user (generated)">
+    <changeSet id="1662628984154-1" author="user (generated)">
         <createSequence incrementBy="1" sequenceName="hibernate_sequence" startValue="1"/>
     </changeSet>
-    <changeSet id="1662621517691-2" author="user (generated)">
-        <createTable tableName="user">
-            <column name="id" type="INT">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user"/>
+    <changeSet id="1662628984154-2" author="user (generated)">
+        <createTable tableName="account">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_account"/>
             </column>
             <column name="login" type="VARCHAR(255)"/>
             <column name="first_name" type="VARCHAR(255)"/>
@@ -20,8 +19,32 @@
             <column name="role" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1662621517691-3" author="user (generated)">
-        <addUniqueConstraint columnNames="login" constraintName="uc_49c670f4480c16028a8e768a1" tableName="user"/>
+    <changeSet id="1662628984154-3" author="user (generated)">
+        <createTable tableName="admin">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_admin"/>
+            </column>
+            <column name="account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1662628984154-4" author="user (generated)">
+        <createTable tableName="client">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_client"/>
+            </column>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1662628984154-5" author="user (generated)">
+        <addUniqueConstraint columnNames="login" constraintName="uc_9a25a080cf2d934bfaa474f3e" tableName="account"/>
+    </changeSet>
+    <changeSet id="1662628984154-6" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="account_id" baseTableName="admin" constraintName="FK_ADMIN_ON_ACCOUNT"
+                                 referencedColumnNames="id" referencedTableName="account"/>
     </changeSet>
 
 </databaseChangeLog>
