@@ -1,0 +1,33 @@
+## Apache Maven 3.6.3
+##Java version: 11.0.5
+services:
+  postgres:
+    image: postgres:13.1-alpine
+    environment:
+      POSTGRES_DB: "workout_planning"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1"
+    restart: always
+    volumes:
+      - ../../data/dump:/db-dump
+    ports:
+      - "5432:5432"
+
+
+variables:
+
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true "
+
+
+compile_test:
+  script:
+    #- apt-get update && apt-get -y upgrade
+    - service postgresql start
+#    - mysql -h localhost -u test -ptest < sql/buscompany.sql
+    - mvn $MAVEN_CLI_OPTS clean compile test
+
+#
+#  tags:
+#    - mysql
+
