@@ -16,6 +16,8 @@ stages:
 
 compile:
   script:
+    - mvn -version
+    - java -version
     - mvn $MAVEN_CLI_OPTS clean compile
 test:
   script:
