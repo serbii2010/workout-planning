@@ -1,27 +1,24 @@
 ## Apache Maven 3.6.3
 ##Java version: 11.0.5
-services:
+image:
   - postgres:13:1-alpine
   - maleksah/mvn3.6.3-jdk11-docker
 
 variables:
   POSTGRES_DB: "workout_planning"
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "1"
   POSTGRES_HOST_AUTH_METHOD: trust
 
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true "
 
+stages:
+  - compile
+  - test
 
-compile_test:
+compile:
   script:
-    #- apt-get update && apt-get -y upgrade
-#    - service postgresql start
-    #    - mysql -h localhost -u test -ptest < sql/buscompany.sql
+    - mvn $MAVEN_CLI_OPTS clean compile
+test:
+  script:
     - mvn $MAVEN_CLI_OPTS clean compile test
-
-#
-#  tags:
-#    - mysql
 
