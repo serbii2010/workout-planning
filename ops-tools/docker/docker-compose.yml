@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:13.1-alpine
+    environment:
+      POSTGRES_DB: "workout_planning"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1"
+    restart: always
+    volumes:
+      - ../../data/dump:/db-dump
+    ports:
+      - "5432:5432"
+
