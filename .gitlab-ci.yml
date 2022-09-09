@@ -35,6 +35,7 @@ compile:
 test:
   stage: test
   script:
+    - service postgresql start
     - mvn $MAVEN_CLI_OPTS test
   tags:
     - jdk_11
