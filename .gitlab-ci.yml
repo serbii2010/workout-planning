@@ -25,7 +25,8 @@ stages:
 test:
   stage: test
   script:
-    - docker ps
+    - service postgresql start
+    - ps aux | grep postgre
 #    - mvn $MAVEN_CLI_OPTS test
   tags:
     - mysql
