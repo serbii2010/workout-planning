@@ -29,7 +29,7 @@ view_version:
 compile_test:
   stage: compile_test
   script:
-    - service postgresql start
+#    - service postgresql start
     - mvn $MAVEN_CLI_OPTS clean compile test
   tags:
     - jdk_11
