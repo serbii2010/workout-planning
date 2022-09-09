@@ -1,4 +1,4 @@
-image: maven_mysql_jdk11:latest
+image: maven:3.6.3-jdk-11
 
 services:
   - postgres:13.1-alpine
@@ -25,8 +25,7 @@ stages:
 test:
   stage: test
   script:
-    - service postgresql start
-    - ps aux | grep postgre
+    - cat /proc/version
 #    - mvn $MAVEN_CLI_OPTS test
   tags:
     - mysql
