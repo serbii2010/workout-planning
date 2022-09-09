@@ -15,7 +15,7 @@ variables:
 
 stages:
   - version
-  - compile-test
+  - compile_test
 
 view_version:
   stage: version
@@ -26,8 +26,8 @@ view_version:
   tags:
     - jdk_11
 
-compile-test:
-  stage: test
+compile_test:
+  stage: compile_test
   script:
     - service postgresql start
     - mvn $MAVEN_CLI_OPTS clean compile test
