@@ -3,7 +3,6 @@ image: maven:3.6.3-jdk-11
 services:
   - postgres:14.3
 
-
 variables:
   POSTGRES_DB: "workout_planning"
   POSTGRES_USER: "postgres"
@@ -14,22 +13,11 @@ variables:
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true "
 
 stages:
-  - version
   - compile_test
-
-view_version:
-  stage: version
-  script:
-    - mvn -version
-    - java -version
-    - cat /proc/version
-  tags:
-    - jdk_11
 
 compile_test:
   stage: compile_test
   script:
-#    - service postgresql start
     - mvn $MAVEN_CLI_OPTS clean compile test
   tags:
     - jdk_11
