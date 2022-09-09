@@ -25,9 +25,8 @@ stages:
 test:
   stage: test
   script:
-    - cat /proc/version
-#    - ps aux | grep postgre
-#    - netstat -ltpn
+    - yum install net-tools
+    - netstat -ltpn
 #    - mvn $MAVEN_CLI_OPTS test
   tags:
     - mysql
