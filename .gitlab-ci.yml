@@ -21,7 +21,11 @@ compile:
     - mvn -version
     - java -version
     - mvn $MAVEN_CLI_OPTS clean compile
+
+  tags:
+    - mysql
 test:
   script:
     - mvn $MAVEN_CLI_OPTS clean compile test
+
 
