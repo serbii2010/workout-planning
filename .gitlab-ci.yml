@@ -23,16 +23,16 @@ view:
     - cat /proc/version
   tags:
     - jdk_11
-
-compile:
-  stage: compile
-  script:
-    - mvn $MAVEN_CLI_OPTS clean compile
-  tags:
-    - jdk_11
-test:
-  stage: test
-  script:
-    - mvn $MAVEN_CLI_OPTS test
-  tags:
-    - jdk_11
+#
+#compile:
+#  stage: compile
+#  script:
+#    - mvn $MAVEN_CLI_OPTS clean compile
+#  tags:
+#    - jdk_11
+#test:
+#  stage: test
+#  script:
+#    - mvn $MAVEN_CLI_OPTS test
+#  tags:
+#    - jdk_11
