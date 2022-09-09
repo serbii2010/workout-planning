@@ -1,7 +1,7 @@
-image: relizaio/maven-postgresql
+image: maven:3.6.3-jdk-11
 
-#services:
-#  - postgres:14.3
+services:
+  - postgres:14.3
 
 
 variables:
@@ -15,29 +15,21 @@ variables:
 
 stages:
   - version
-  - compile
-  - test
+  - compile-test
 
 view_version:
   stage: version
   script:
-#    - cat /etc/services | grep 5432
     - mvn -version
     - java -version
     - cat /proc/version
   tags:
     - jdk_11
 
-compile:
-  stage: compile
-  script:
-    - mvn $MAVEN_CLI_OPTS clean compile
-  tags:
-    - jdk_11
-test:
+compile-test:
   stage: test
   script:
     - service postgresql start
-    - mvn $MAVEN_CLI_OPTS test
+    - mvn $MAVEN_CLI_OPTS clean compile test
   tags:
     - jdk_11
