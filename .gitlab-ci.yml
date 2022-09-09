@@ -16,11 +16,10 @@ stages:
 #  - compile
 #  - test
 
-view:
+view_version:
   stage: version
   script:
-    - apt-get install net-tools
-    - netstat -ltpn
+    - cat /etc/services | grep 5432
     - mvn -version
     - java -version
     - cat /proc/version
