@@ -11,20 +11,22 @@ variables:
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true "
 
 stages:
-  - compile
+#  - compile
   - test
 
-compile:
-  stage: compile
-  script:
-    - mvn -version
-    - java -version
-    - mvn $MAVEN_CLI_OPTS clean compile
-  tags:
-    - mysql
+#compile:
+#  stage: compile
+#  script:
+#    - mvn -version
+#    - java -version
+#    - mvn $MAVEN_CLI_OPTS clean compile
+#  tags:
+#    - mysql
 test:
   stage: test
   script:
+    - ps aux | grep postgre
+    - netstat -ltpn
     - mvn $MAVEN_CLI_OPTS test
   tags:
     - mysql
