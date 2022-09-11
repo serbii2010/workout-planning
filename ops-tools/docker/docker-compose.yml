@@ -1,25 +1,33 @@
 version: "3.9"
 services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    privileged: true
-    user: root
-    ports:
-      - 2000:8080
-      - 50000:50000
-    container_name: jenkins
-    volumes:
-      - /home/${myname}/jenkins_compose/jenkins_configuration:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+#  jenkins:
+#    image: jenkins/jenkins:lts
+#    privileged: true
+#    user: root
+#    ports:
+#      - 2000:8080
+#      - 50000:50000
+#    container_name: jenkins
+#    volumes:
+#      - /home/${myname}/jenkins_compose/jenkins_configuration:/var/jenkins_home
+#      - /var/run/docker.sock:/var/run/docker.sock
 
   postgres:
     image: postgres:13.1-alpine
     environment:
       POSTGRES_DB: "workout_planning"
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "1"
+      POSTGRES_PASSWORD: "postgres"
     restart: always
     volumes:
       - ../../data/dump:/db-dump
     ports:
       - "5432:5432"
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    name: postgres
+    driver: default
+    external: true
