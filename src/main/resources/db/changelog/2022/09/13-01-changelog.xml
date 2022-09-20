@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1663073034158-1" author="user (generated)">
+        <addUniqueConstraint columnNames="email" constraintName="uc_user_email" tableName="user"/>
+    </changeSet>
+    <changeSet id="1663073034158-2" author="user (generated)">
+        <addUniqueConstraint columnNames="username" constraintName="uc_user_username" tableName="user"/>
+    </changeSet>
+    <changeSet id="1663073034158-3" author="user (generated)">
+        <dropUniqueConstraint constraintName="uc_2cd01e89afdcebf3621eb5c7f" tableName="user"/>
+    </changeSet>
+
+</databaseChangeLog>

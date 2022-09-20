@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1662958675660-1" author="user (generated)">
+        <createTable tableName="role">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_role"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1662958675660-2" author="user (generated)">
+        <createTable tableName="user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user"/>
+            </column>
+            <column name="username" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="role_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1662958675660-3" author="user (generated)">
+        <addUniqueConstraint columnNames="username, email" constraintName="uc_2cd01e89afdcebf3621eb5c7f"
+                             tableName="user"/>
+    </changeSet>
+    <changeSet id="1662958675660-4" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user" constraintName="FK_USER_ON_ROLE"
+                                 referencedColumnNames="id" referencedTableName="role"
+                                 referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet id="1662957993489-7" author="serbii2010">
+        <insert tableName="role">
+            <column name="name">ADMIN</column>
+        </insert>
+        <insert tableName="role">
+            <column name="name">TRAINER</column>
+        </insert>
+        <insert tableName="role">
+            <column name="name">CLIENT</column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
