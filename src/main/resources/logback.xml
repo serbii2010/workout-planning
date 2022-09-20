@@ -28,7 +28,7 @@
         </triggeringPolicy>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="workout-planning"/>
     </root>
