@@ -5,8 +5,14 @@ import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.exception.InternalErrorCode;
 import com.thumbtack.school.workoutplanning.exception.InternalException;
+import com.thumbtack.school.workoutplanning.security.jwt.JwtAuthenticationException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,10 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-
+@Aspect
 @RestControllerAdvice
 @Slf4j
 public class GlobalErrorHandler {
@@ -36,13 +39,21 @@ public class GlobalErrorHandler {
         return error;
     }
 
+    @ExceptionHandler(JwtAuthenticationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError handleJwtAuthException(BadRequestException exception) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.FORBIDDEN.getErrorString(), null, null));
+        return error;
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public MyError usernameNotFound(HttpServletRequest request, Exception e) {
         MyError error = new MyError();
-
-        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.INTERNAL_ERROR.getErrorString(), null, null));
+        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.INVALID_AUTHENTICATION.getErrorString(), null, null));
         log.error("Error: {} {}", request, e);
         return error;
     }
@@ -95,6 +106,15 @@ public class GlobalErrorHandler {
     public MyError internalError(HttpServletRequest request, Exception e) {
         MyError error = getInternalError();
         log.error("Error: {} {}", request, e);
+        return error;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public MyError forbidden() {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.FORBIDDEN.getErrorString(), null, null));
         return error;
     }
 

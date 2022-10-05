@@ -45,7 +45,7 @@ class ClientControllerTest {
         RegistrationDtoRequest request = AccountHelper.getClientRegistrationDtoRequest();
         AuthDtoResponse response = AccountHelper.getClientAuthDtoResponse();
 
-        mvc.perform(post("/api/client/registration")
+        mvc.perform(post("/api/client-accounts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(request)))

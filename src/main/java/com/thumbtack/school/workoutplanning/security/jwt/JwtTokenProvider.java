@@ -7,6 +7,14 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,15 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -88,11 +87,11 @@ public class JwtTokenProvider {
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtAuthenticationException("JWT token is expired or invalid");
+            return false;
         }
     }
 
-    private List<String> getRoleNames(Role userRoles) {
-        return Collections.singletonList(userRoles.toString());
+    private List<String> getRoleNames(Role userRole) {
+        return Collections.singletonList(userRole.getName().getType());
     }
 }

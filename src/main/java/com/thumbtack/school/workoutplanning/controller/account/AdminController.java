@@ -9,6 +9,7 @@ import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,12 +20,13 @@ import javax.validation.Valid;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin-accounts")
 public class AdminController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/registration", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAnonymous()")
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public AuthDtoResponse addUser(@Valid @RequestBody RegistrationDtoRequest request) throws BadRequestException {
         User user = UserMapper.INSTANCE.registrationDtoToUser(request);
         userService.register(user, AuthType.ADMIN);

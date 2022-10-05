@@ -2,7 +2,9 @@ package com.thumbtack.school.workoutplanning.exception;
 
 public enum InternalErrorCode {
     INTERNAL_ERROR("Internal error"),
-    UNKNOWN_ROLE("Unknown Role");
+    UNKNOWN_ROLE("Unknown Role"),
+    FORBIDDEN("Action Forbidden"),
+    NOT_FOUND("Endpoint not found");
 
     InternalErrorCode(String error) {
         setErrorString(error);

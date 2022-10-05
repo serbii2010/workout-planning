@@ -28,6 +28,6 @@ public final class JwtUserFactory {
     }
 
     private static List<? extends GrantedAuthority> mapToGrantedAuthorities(Role role) {
-        return Collections.singletonList(new SimpleGrantedAuthority(role.getName().name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(role.getName().getType()));
     }
 }
