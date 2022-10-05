@@ -1,5 +1,6 @@
 package com.thumbtack.school.workoutplanning.service;
 
+import com.thumbtack.school.workoutplanning.dto.request.UpdateAccountDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
@@ -13,9 +14,11 @@ import com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
 
 import static com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider.JWT_TOKEN_NAME;
 
@@ -44,6 +49,7 @@ public class UserService {
         Role roleUser = roleRepository.findByName(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(roleUser);
+        user.setIsActive(true);
 
         try {
             User registeredUser = userRepository.save(user);
@@ -61,7 +67,7 @@ public class UserService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             User user = findByUsername(username);
 
-            if (user == null) {
+            if (user == null || !user.getIsActive()) {
                 throw new UsernameNotFoundException("User with username: " + username + " not found");
             }
 
@@ -69,6 +75,7 @@ public class UserService {
 
             Cookie cookie = new Cookie(JWT_TOKEN_NAME, token);
             cookie.setPath("/");
+            cookie.setSecure(true);
             response.addCookie(cookie);
             return UserMapper.INSTANCE.userToDtoResponse(user);
         } catch (AuthenticationException e) {
@@ -103,5 +110,48 @@ public class UserService {
     public void delete(Long id) {
         userRepository.deleteById(id);
         log.info("IN delete - user with id: {} successfully deleted", id);
+    }
+
+    public User update(String username, UpdateAccountDtoRequest request) throws AccessDeniedException {
+        String roleName = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toArray()[0].toString();
+        AuthType authType = AuthType.valueOf(roleName.split("_")[1]);
+        User user = userRepository.findByUsername(username);
+        boolean isAdmin = authType == AuthType.ADMIN;
+        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals(user.getUsername()) && !isAdmin) {
+            throw new AccessDeniedException("Action forbidden");
+        }
+        UserMapper.INSTANCE.updateDtoToUser(user, request);
+        userRepository.save(user);
+        return user;
+    }
+
+    public User setActive(String username, boolean isActive) throws BadRequestException {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new BadRequestException(BadRequestErrorCode.USER_NOT_FOUND);
+        }
+
+        user.setIsActive(isActive);
+        userRepository.save(user);
+        return user;
+    }
+
+    public List<User> getAllByRole(String roleName) throws BadRequestException {
+        if (roleName == null) {
+            throw new BadRequestException(BadRequestErrorCode.ROLE_NOT_FOUND);
+        }
+        try {
+            Role role = roleRepository.findByName(AuthType.valueOf(roleName.toUpperCase(Locale.ROOT)));
+            return userRepository.findAllByRole(role);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(BadRequestErrorCode.ROLE_NOT_FOUND);
+        }
+    }
+
+    public User getById(Long id) throws BadRequestException {
+        if (userRepository.findById(id).isEmpty()) {
+            throw new BadRequestException(BadRequestErrorCode.USER_NOT_FOUND);
+        }
+        return userRepository.findById(id).get();
     }
 }

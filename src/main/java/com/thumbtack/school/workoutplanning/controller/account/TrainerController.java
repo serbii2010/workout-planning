@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
-@RequestMapping("/api/client-accounts")
-public class ClientController {
+@RequestMapping("/api/trainer-accounts")
+public class TrainerController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("isAnonymous()")
+    @PreAuthorize(value = "hasRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name())")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public AuthDtoResponse registration(@Valid @RequestBody RegistrationDtoRequest request) throws BadRequestException {
         User user = UserMapper.INSTANCE.registrationDtoToUser(request);
-        userService.register(user, AuthType.CLIENT);
+        userService.register(user, AuthType.TRAINER);
         return UserMapper.INSTANCE.userToDtoResponse(user);
     }
 }

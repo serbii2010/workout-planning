@@ -5,6 +5,7 @@ import com.thumbtack.school.workoutplanning.dto.request.RegistrationDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.helper.AccountHelper;
 import com.thumbtack.school.workoutplanning.service.DebugService;
+import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,17 +17,15 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider.JWT_TOKEN_NAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @TestPropertySource("classpath:test.properties")
 @AutoConfigureMockMvc
-class AdminControllerTest {
+class TrainerControllerTest {
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -40,16 +39,20 @@ class AdminControllerTest {
     }
 
     @Test
-    void addUser() throws Exception {
-        RegistrationDtoRequest request = AccountHelper.getAdminRegistrationDroRequest();
-        AuthDtoResponse response = AccountHelper.getAdminAuthDtoResponse();
+    void registration() throws Exception {
+        AccountHelper.registrationAdmin(mvc, mapper);
+        Cookie cookie = AccountHelper.loginAdmin(mvc, mapper);
+        RegistrationDtoRequest request = AccountHelper.getTrainerRegistrationDroRequest();
+        AuthDtoResponse response = AccountHelper.getTrainerAuthDtoResponse();
 
-        mvc.perform(post("/api/admin-accounts")
+        mvc.perform(post("/api/trainer-accounts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(request)))
+                .content(mapper.writeValueAsString(request))
+                .cookie(cookie))
                 .andExpect(status().isOk())
-                .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
                 .andExpect(content().json(mapper.writeValueAsString(response)));
     }
+
+
 }

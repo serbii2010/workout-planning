@@ -37,6 +37,7 @@ public class User {
     private String phone;
     @Size(min = 5, message = "Min length 5 symbols")
     private String password;
+    private Boolean isActive = true;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
