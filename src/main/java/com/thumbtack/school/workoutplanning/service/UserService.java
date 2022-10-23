@@ -1,7 +1,7 @@
 package com.thumbtack.school.workoutplanning.service;
 
-import com.thumbtack.school.workoutplanning.dto.request.UpdateAccountDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.request.account.UpdateAccountDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.mappers.dto.UserMapper;
@@ -11,6 +11,7 @@ import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.repository.RoleRepository;
 import com.thumbtack.school.workoutplanning.repository.UserRepository;
 import com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -27,11 +28,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 
 import static com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider.JWT_TOKEN_NAME;
 
 @Service
+@Transactional
 @Slf4j
 public class UserService {
     @Autowired

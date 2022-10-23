@@ -1,4 +1,4 @@
-package com.thumbtack.school.workoutplanning.dto.request;
+package com.thumbtack.school.workoutplanning.dto.request.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1664976265093-1" author="user (generated)">
+        <createTable tableName="workout">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_workout"/>
+            </column>
+            <column name="date" type="DATE"/>
+            <column name="time" type="DATETIME"/>
+            <column name="duration" type="INT"/>
+            <column name="trainer_id" type="BIGINT"/>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="total_seats" type="INT"/>
+            <column name="available_seats" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1664976265093-2" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="trainer_id" baseTableName="workout"
+                                 constraintName="FK_WORKOUT_ON_TRAINER" referencedColumnNames="id"
+                                 referencedTableName="user" referencedTableSchemaName="public"/>
+    </changeSet>
+
+</databaseChangeLog>

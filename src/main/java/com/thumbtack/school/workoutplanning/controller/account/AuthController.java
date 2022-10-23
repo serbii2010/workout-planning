@@ -1,7 +1,7 @@
 package com.thumbtack.school.workoutplanning.controller.account;
 
-import com.thumbtack.school.workoutplanning.dto.request.AuthDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.request.account.AuthDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

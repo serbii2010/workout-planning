@@ -1,8 +1,8 @@
 package com.thumbtack.school.workoutplanning.controller.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thumbtack.school.workoutplanning.dto.request.RegistrationDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.request.account.RegistrationDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.helper.AccountHelper;
 import com.thumbtack.school.workoutplanning.service.DebugService;
 import org.junit.jupiter.api.BeforeEach;

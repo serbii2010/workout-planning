@@ -1,10 +1,10 @@
 package com.thumbtack.school.workoutplanning.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thumbtack.school.workoutplanning.dto.request.AuthDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.request.RegistrationDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.request.UpdateAccountDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.request.account.AuthDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.request.account.RegistrationDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.request.account.UpdateAccountDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.model.AuthType;
 import javax.servlet.http.Cookie;
 import org.springframework.http.MediaType;
@@ -103,7 +103,7 @@ public class AccountHelper {
 
     public static UpdateAccountDtoRequest getTrainerUpdateDtoRequest() {
         return new UpdateAccountDtoRequest(
-                "trainer1",
+                "trainer-f",
                 "tr",
                 "trainer1@workout.ru",
                 "8800-555-35-36"
@@ -113,7 +113,7 @@ public class AccountHelper {
     public static AuthDtoResponse getAuthAfterUpdateDtoResponse() {
         return new AuthDtoResponse(
                 "trainer",
-                "trainer1",
+                "trainer-f",
                 "tr",
                 "trainer1@workout.ru",
                 "8800-555-35-36",
