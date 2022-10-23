@@ -6,7 +6,13 @@ public enum BadRequestErrorCode {
     BAD_FIELD_COOKIE("Cookie not found"),
     INVALID_USERNAME_OR_PASSWORD("Invalid username or password"),
     ROLE_NOT_FOUND("Role not found"),
-    INVALID_AUTHENTICATION("Invalid authentication token");
+    INVALID_AUTHENTICATION("Invalid authentication token"),
+    DATETIME_WORKOUT_ALREADY_EXISTS("Datetime workout already exist"),
+    WORKOUT_NOT_FOUND("Workout not found"),
+    BAD_ID_REQUEST("Bad id in request"),
+    TRAINER_NOT_FOUND("Trainer not found"),
+    BAD_DATE_OR_TIME("Bad Date or Time in request"),
+    UNEXPECTED_TYPE("Unexpected type in request");
 
     private String error;
 

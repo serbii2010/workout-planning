@@ -6,6 +6,7 @@ import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.exception.InternalErrorCode;
 import com.thumbtack.school.workoutplanning.exception.InternalException;
 import com.thumbtack.school.workoutplanning.security.jwt.JwtAuthenticationException;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Aspect
 @RestControllerAdvice
@@ -48,29 +50,6 @@ public class GlobalErrorHandler {
         return error;
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public MyError usernameNotFound(HttpServletRequest request, Exception e) {
-        MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.INVALID_AUTHENTICATION.getErrorString(), null, null));
-        log.error("Error: {} {}", request, e);
-        return error;
-    }
-
-    @ExceptionHandler(MissingRequestCookieException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public MyError handleCookie(MissingRequestCookieException exception) {
-        final MyError error = new MyError();
-        ErrorDtoResponse dtoResponse = new ErrorDtoResponse();
-        dtoResponse.setErrorCode(BadRequestErrorCode.BAD_FIELD_COOKIE.getErrorString());
-        dtoResponse.setMessage(exception.getMessage());
-        dtoResponse.setField(exception.getCookieName());
-        error.getErrors().add(dtoResponse);
-        return error;
-    }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -91,6 +70,55 @@ public class GlobalErrorHandler {
             errorDtoResponse.setMessage(err.getDefaultMessage());
             error.getErrors().add(errorDtoResponse);
         });
+        return error;
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public MyError usernameNotFound(HttpServletRequest request, Exception e) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.INVALID_AUTHENTICATION.getErrorString(), null, null));
+        log.error("Error: {} {}", request, e);
+        return error;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError badLocalDateTime(HttpServletRequest request, MethodArgumentTypeMismatchException e) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(
+                BadRequestErrorCode.BAD_DATE_OR_TIME.getErrorString(),
+                e.getName(),
+                e.getCause().getCause().getMessage()));
+        log.error("Error: {} {}", request, e);
+        return error;
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError badDate(HttpServletRequest request, DateTimeParseException exception) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(
+                BadRequestErrorCode.BAD_DATE_OR_TIME.getErrorString(),
+                "",
+                exception.getMessage()));
+        log.error("Error: {} {}", request, exception);
+        return error;
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError handleCookie(MissingRequestCookieException exception) {
+        final MyError error = new MyError();
+        ErrorDtoResponse dtoResponse = new ErrorDtoResponse();
+        dtoResponse.setErrorCode(BadRequestErrorCode.BAD_FIELD_COOKIE.getErrorString());
+        dtoResponse.setMessage(exception.getMessage());
+        dtoResponse.setField(exception.getCookieName());
+        error.getErrors().add(dtoResponse);
         return error;
     }
 

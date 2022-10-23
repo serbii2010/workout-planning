@@ -1,4 +1,4 @@
-package com.thumbtack.school.workoutplanning.dto.request;
+package com.thumbtack.school.workoutplanning.dto.request.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,16 +11,12 @@ import javax.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrationDtoRequest {
+public class UpdateAccountDtoRequest {
     @NotBlank
-    @Pattern(regexp = "^[0-9A-Za-zА-Яа-я]+", message = "Invalid characters are used")
-    private String username;
-    private String password;
-    @NotBlank
-    @Pattern(regexp = "^[А-Яа-я \\-]+$", message = "FirstName Invalid characters are used")
+    @Pattern(regexp = "^[А-Яа-яA-Za-z \\-]+$", message = "FirstName Invalid characters are used")
     private String firstName;
     @NotBlank
-    @Pattern(regexp = "^[А-Яа-я \\-]+$", message = "LastName Invalid characters are used")
+    @Pattern(regexp = "^[А-Яа-яA-Za-z \\-]+$", message = "LastName Invalid characters are used")
     private String lastName;
     @NotBlank
     @Email
@@ -29,5 +25,4 @@ public class RegistrationDtoRequest {
     @Pattern(regexp = "^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$",
             message = "Phone number incorrectly")
     private String phone;
-
 }

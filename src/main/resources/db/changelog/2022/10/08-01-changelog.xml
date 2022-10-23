@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1665238512043-1" author="user (generated)">
+        <dropColumn columnName="time_start" tableName="workout"/>
+    </changeSet>
+    <changeSet id="1665238512043-2" author="user (generated)">
+        <addColumn tableName="workout">
+            <column name="time_start" type="TIME"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,7 +1,7 @@
 package com.thumbtack.school.workoutplanning.controller.account;
 
-import com.thumbtack.school.workoutplanning.dto.request.RegistrationDtoRequest;
-import com.thumbtack.school.workoutplanning.dto.response.auth.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.request.account.RegistrationDtoRequest;
+import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.mappers.dto.UserMapper;
 import com.thumbtack.school.workoutplanning.model.AuthType;
