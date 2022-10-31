@@ -30,6 +30,6 @@ public class AdminController {
     public AuthDtoResponse addUser(@Valid @RequestBody RegistrationDtoRequest request) throws BadRequestException {
         User user = UserMapper.INSTANCE.registrationDtoToUser(request);
         userService.register(user, AuthType.ADMIN);
-        return UserMapper.INSTANCE.userToDtoResponse(user);
+        return UserMapper.INSTANCE.userToAuthDtoResponse(user);
     }
 }

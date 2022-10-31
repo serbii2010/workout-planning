@@ -1,10 +1,11 @@
 package com.thumbtack.school.workoutplanning.dto.response.workout;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.thumbtack.school.workoutplanning.model.StatusRecord;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -18,4 +19,16 @@ public class WorkoutDtoResponse {
     private String typeWorkout;
     private Integer totalSeats;
     private Integer availableSeats;
+    private String statusRecord;
+
+    public WorkoutDtoResponse(Integer id,
+                              LocalDate date,
+                              String timeStart,
+                              String trainer,
+                              Integer duration,
+                              String typeWorkout,
+                              Integer totalSeats,
+                              Integer availableSeats) {
+        this(id, date, timeStart, trainer, duration, typeWorkout, totalSeats, availableSeats, StatusRecord.UNDEFINED.name());
+    }
 }

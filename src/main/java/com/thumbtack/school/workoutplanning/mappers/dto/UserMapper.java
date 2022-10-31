@@ -3,7 +3,7 @@ package com.thumbtack.school.workoutplanning.mappers.dto;
 import com.thumbtack.school.workoutplanning.dto.request.account.RegistrationDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.request.account.UpdateAccountDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
-import com.thumbtack.school.workoutplanning.dto.response.account.UserDetailsResponse;
+import com.thumbtack.school.workoutplanning.dto.response.account.UserDtoResponse;
 import com.thumbtack.school.workoutplanning.model.AuthType;
 import com.thumbtack.school.workoutplanning.model.User;
 import org.mapstruct.Mapper;
@@ -17,10 +17,10 @@ public interface UserMapper {
     User registrationDtoToUser(RegistrationDtoRequest request);
 
     @Mapping(target = "role", source = "role.name")
-    AuthDtoResponse userToDtoResponse(User user);
+    AuthDtoResponse userToAuthDtoResponse(User user);
 
     @Mapping(target = "role", source = "role.name")
-    UserDetailsResponse userToDetailsDtoResponse(User user);
+    UserDtoResponse userToDtoResponse(User user);
 
     void updateDtoToUser(@MappingTarget User user, UpdateAccountDtoRequest request);
 }

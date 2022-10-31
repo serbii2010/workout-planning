@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1666510933907-1" author="user (generated)">
+        <dropColumn columnName="status" tableName="record"/>
+    </changeSet>
+    <changeSet id="1666510933907-2" author="user (generated)">
+        <addColumn tableName="record">
+            <column name="status" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1666510933907-3" author="user (generated)">
+        <dropNotNullConstraint columnDataType="int" columnName="status" tableName="record"/>
+    </changeSet>
+
+</databaseChangeLog>

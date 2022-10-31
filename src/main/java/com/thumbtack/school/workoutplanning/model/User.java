@@ -1,18 +1,22 @@
 package com.thumbtack.school.workoutplanning.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -41,5 +45,16 @@ public class User {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
+
+    @ManyToMany
+    @JoinTable(
+            name = "record",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "workout_id")}
+    )
+    private Set<Workout> workouts;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Record> records;
 
 }
