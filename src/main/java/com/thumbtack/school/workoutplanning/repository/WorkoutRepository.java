@@ -5,16 +5,32 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 public interface WorkoutRepository extends JpaRepository<Workout, Long>,
         JpaSpecificationExecutor<Workout> {
-    @Query("select count(w) from Workout w where " +
-            "w.date=:date and " +
-            "w.timeStart >= :timeStart and " +
-            "w.timeStart <= :timeEnd")
-    long getCountWorkoutByTrainerTime(@Param("date") LocalDate date,
-                                      @Param("timeStart") LocalTime timeStart,
-                                      @Param("timeEnd") LocalTime timeEnd);
+    default Long getCountWorkoutByTime(EntityManager entityManager, LocalDate date, LocalTime timeStart, Integer duration, Workout workout) {
+        String queryStr = "SELECT count(*) " +
+                "FROM workout " +
+                "WHERE " +
+                "   workout.date=:date " +
+                "   AND ((time_start between :timeStart and :timeEnd) " +
+                "        OR (time_start + (interval '1' minute) * duration) between :timeStart and :timeEnd)";
+
+        if (workout != null) {
+            queryStr = queryStr + " AND workout.id != :workoutId";
+        }
+        Query query = entityManager.createNativeQuery(queryStr);
+        query.setParameter("date", date);
+        query.setParameter("timeStart", timeStart);
+        query.setParameter("timeEnd", timeStart.plusMinutes(duration));
+        if (workout != null) {
+            query.setParameter("workoutId", workout.getId());
+        }
+        Object res = query.getSingleResult();
+        return Long.parseLong(res.toString());
+    }
 }

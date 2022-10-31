@@ -27,6 +27,21 @@ public class WorkoutHelper {
         );
     }
 
+    public static GenerateWorkoutDtoRequest getGenerateWorkoutDtoRequestByCurrentWeek() {
+        LocalDate currentDate = LocalDate.now();
+
+        return new GenerateWorkoutDtoRequest(
+                currentDate.toString(),
+                currentDate.plusDays(6).toString(),
+                "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31",
+                "trainer",
+                "body",
+                30,
+                1,
+                "11:30"
+        );
+    }
+
     public static List<WorkoutDtoResponse> getGenerateWorkoutDtoResponses() {
         List<WorkoutDtoResponse> responses = new ArrayList<>();
         responses.add(new WorkoutDtoResponse(1, LocalDate.parse("2022-09-03"), "12:30:00",
@@ -62,6 +77,16 @@ public class WorkoutHelper {
 
     public static void generateWorkouts(MockMvc mvc, ObjectMapper mapper, Cookie cookie) throws Exception {
         GenerateWorkoutDtoRequest request = WorkoutHelper.getGenerateWorkoutDtoRequest();
+
+        mvc.perform(post("/api/workouts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request))
+                .cookie(cookie));
+    }
+
+    public static void generateWorkoutsCurrentWeek(MockMvc mvc, ObjectMapper mapper, Cookie cookie) throws Exception {
+        GenerateWorkoutDtoRequest request = WorkoutHelper.getGenerateWorkoutDtoRequestByCurrentWeek();
 
         mvc.perform(post("/api/workouts")
                 .contentType(MediaType.APPLICATION_JSON)

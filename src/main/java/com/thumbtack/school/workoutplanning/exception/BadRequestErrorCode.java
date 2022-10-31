@@ -12,7 +12,18 @@ public enum BadRequestErrorCode {
     BAD_ID_REQUEST("Bad id in request"),
     TRAINER_NOT_FOUND("Trainer not found"),
     BAD_DATE_OR_TIME("Bad Date or Time in request"),
-    UNEXPECTED_TYPE("Unexpected type in request");
+    UNEXPECTED_TYPE("Unexpected type in request"),
+    RECORD_ALREADY_EXIST("Record already exist"),
+    INVALID_USERNAME("Invalid username"),
+    NOT_AVAILABLE_SEATS("Workout not exists available seats"),
+    RECORD_NOT_FOUND("Record not found"),
+    OPTION_NOT_FOUND("Option not found"),
+    WORKOUT_ALREADY_STARTED("Workout already started"),
+    BAD_RULE_NAME("Bad rule name"),
+    BAD_RULE_VALUE("Bad rule value"),
+    CLIENT_NOT_FOUND("Client not found"),
+    RULE_NOT_SET("Rule not set"),
+    BAD_TYPE_PARAM("Bad type param");
 
     private String error;
 

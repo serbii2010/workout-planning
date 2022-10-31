@@ -150,6 +150,17 @@ public class AccountHelper {
                 .content(mapper.writeValueAsString(request)));
     }
 
+    public static void registrationClientTwo(MockMvc mvc, ObjectMapper mapper) throws Exception {
+        RegistrationDtoRequest request = AccountHelper.getClientRegistrationDtoRequest();
+        request.setUsername("client2");
+        request.setEmail("client2@workoutplanning.com");
+
+        mvc.perform(post("/api/client-accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)));
+    }
+
     public static Cookie loginAdmin(MockMvc mvc, ObjectMapper mapper) throws Exception {
         AuthDtoRequest request = AccountHelper.getAuthAdminDtoRequest();
 
@@ -173,8 +184,19 @@ public class AccountHelper {
                 .andReturn()
                 .getResponse()
                 .getCookie(JWT_TOKEN_NAME);
-
     }
 
+    public static Cookie loginClient(MockMvc mvc, ObjectMapper mapper) throws Exception {
+        AuthDtoRequest request = AccountHelper.getAuthClientDtoRequest();
+
+        return mvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)))
+                .andReturn()
+                .getResponse()
+                .getCookie(JWT_TOKEN_NAME);
+
+    }
 
 }

@@ -29,6 +29,6 @@ public class TrainerController {
     public AuthDtoResponse registration(@Valid @RequestBody RegistrationDtoRequest request) throws BadRequestException {
         User user = UserMapper.INSTANCE.registrationDtoToUser(request);
         userService.register(user, AuthType.TRAINER);
-        return UserMapper.INSTANCE.userToDtoResponse(user);
+        return UserMapper.INSTANCE.userToAuthDtoResponse(user);
     }
 }

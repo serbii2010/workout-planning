@@ -5,33 +5,47 @@ import com.thumbtack.school.workoutplanning.dto.request.workout.WorkoutDtoReques
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.mappers.dto.WorkoutMapper;
+import com.thumbtack.school.workoutplanning.model.Option;
 import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.model.Workout;
 import com.thumbtack.school.workoutplanning.repository.Operator;
 import com.thumbtack.school.workoutplanning.repository.WorkoutRepository;
 import com.thumbtack.school.workoutplanning.repository.WorkoutSpecificationsBuilder;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
+
+import com.thumbtack.school.workoutplanning.utils.DateTimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
+@Transactional(rollbackOn = {Throwable.class})
 @Slf4j
 public class WorkoutService {
     @Autowired
     private UserService userService;
     @Autowired
     private WorkoutRepository workoutRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public Workout findById(Long id) throws BadRequestException {
+        Optional<Workout> workout = workoutRepository.findById(id);
+        if (workout.isEmpty()) {
+            throw new BadRequestException(BadRequestErrorCode.WORKOUT_NOT_FOUND);
+        }
+        return workout.get();
+    }
 
     public List<Workout> generateWorkout(GenerateWorkoutDtoRequest request) throws BadRequestException {
         String period = request.getPeriod();
@@ -62,7 +76,9 @@ public class WorkoutService {
         List<LocalDate> badDates = new ArrayList<>();
         dates.forEach(localDate -> {
             Workout workout = WorkoutMapper.INSTANCE.workoutDtoRequestToWorkout(request, localDate, trainer);
-            checkDuplicates(workout.getTimeStart(), localDate, workout.getDuration(), badDates);
+            if (isDuplicates(workout.getTimeStart(), localDate, workout.getDuration(), null)) {
+                badDates.add(localDate);
+            }
             workouts.add(workout);
         });
 
@@ -76,7 +92,14 @@ public class WorkoutService {
         if (workoutRepository.findById(id).isEmpty()) {
             throw new BadRequestException(BadRequestErrorCode.WORKOUT_NOT_FOUND);
         }
-        Workout workout = workoutRepository.findById(id).get();
+        Workout workout = findById(id);
+
+        if (isDuplicates(LocalTime.parse(request.getTimeStart()), request.getDate(), request.getDuration(), workout)) {
+            List<LocalDate> badDate = new ArrayList<>();
+            badDate.add(request.getDate());
+            generateBadResponse(badDate, request.getTimeStart(), request.getDuration());
+        }
+
         WorkoutMapper.INSTANCE.update(workout, request, userService);
         workoutRepository.save(workout);
         return workout;
@@ -109,21 +132,18 @@ public class WorkoutService {
     }
 
     public void delete(Long id) throws BadRequestException {
-        if (workoutRepository.findById(id).isEmpty()) {
-            throw new BadRequestException(BadRequestErrorCode.WORKOUT_NOT_FOUND);
-        }
-        Workout workout = workoutRepository.findById(id).get();
-        workoutRepository.delete(workout);
+        workoutRepository.delete(findById(id));
     }
 
-    private void checkDuplicates(LocalTime timeStart, LocalDate localDate, Integer duration, List<LocalDate> badDates) {
+    private boolean isDuplicates(LocalTime timeStart, LocalDate localDate, Integer duration, Workout workout) {
         if (timeStart != null) {
-            long count = workoutRepository.getCountWorkoutByTrainerTime(localDate, timeStart, timeStart.plusMinutes(duration));
+            long count = workoutRepository.getCountWorkoutByTime(entityManager, localDate, timeStart, duration, workout);
             if (count > 0) {
                 log.info(String.valueOf(count));
-                badDates.add(localDate);
+                return true;
             }
         }
+        return false;
     }
 
     private void generateBadResponse(List<LocalDate> dates, String timeStart, Integer duration) throws BadRequestException {
@@ -142,3 +162,4 @@ public class WorkoutService {
         throw new BadRequestException(errorCode);
     }
 }
+

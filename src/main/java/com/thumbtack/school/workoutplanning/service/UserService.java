@@ -11,6 +11,11 @@ import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.repository.RoleRepository;
 import com.thumbtack.school.workoutplanning.repository.UserRepository;
 import com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider;
+import com.thumbtack.school.workoutplanning.utils.AuthUtils;
+import java.util.List;
+import java.util.Locale;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +24,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Locale;
 
 import static com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider.JWT_TOKEN_NAME;
 
@@ -46,17 +45,15 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public User register(User user, AuthType role) throws BadRequestException {
+    public void register(User user, AuthType role) throws BadRequestException {
         Role roleUser = roleRepository.findByName(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(roleUser);
         user.setIsActive(true);
 
         try {
-            User registeredUser = userRepository.save(user);
-            log.info("IN register - user: {} successfully registered", registeredUser);
-
-            return registeredUser;
+            userRepository.save(user);
+            log.info("IN register - user: {} successfully registered", user);
         } catch (DataAccessException exception) {
             log.error("Duplicate users. {}", exception.getCause().getMessage());
             throw new BadRequestException(BadRequestErrorCode.USERNAME_ALREADY_USED);
@@ -78,7 +75,7 @@ public class UserService {
             cookie.setPath("/");
             cookie.setSecure(true);
             response.addCookie(cookie);
-            return UserMapper.INSTANCE.userToDtoResponse(user);
+            return UserMapper.INSTANCE.userToAuthDtoResponse(user);
         } catch (AuthenticationException e) {
             throw new BadRequestException(BadRequestErrorCode.INVALID_USERNAME_OR_PASSWORD);
         }
@@ -114,11 +111,10 @@ public class UserService {
     }
 
     public User update(String username, UpdateAccountDtoRequest request) throws AccessDeniedException {
-        String roleName = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toArray()[0].toString();
-        AuthType authType = AuthType.valueOf(roleName.split("_")[1]);
+        AuthType authType = AuthUtils.getRole();
         User user = userRepository.findByUsername(username);
         boolean isAdmin = authType == AuthType.ADMIN;
-        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals(user.getUsername()) && !isAdmin) {
+        if (!AuthUtils.getUsername().equals(user.getUsername()) && !isAdmin) {
             throw new AccessDeniedException("Action forbidden");
         }
         UserMapper.INSTANCE.updateDtoToUser(user, request);
@@ -154,5 +150,13 @@ public class UserService {
             throw new BadRequestException(BadRequestErrorCode.USER_NOT_FOUND);
         }
         return userRepository.findById(id).get();
+    }
+
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie(JWT_TOKEN_NAME, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        response.addCookie(cookie);
     }
 }

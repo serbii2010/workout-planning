@@ -7,7 +7,7 @@ import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.model.Workout;
 import java.time.LocalDate;
 
-import com.thumbtack.school.workoutplanning.repository.UserRepository;
+import com.thumbtack.school.workoutplanning.service.RecordService;
 import com.thumbtack.school.workoutplanning.service.UserService;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -20,7 +20,8 @@ public interface WorkoutMapper {
     WorkoutMapper INSTANCE = Mappers.getMapper(WorkoutMapper.class);
 
     @Mapping(target = "trainer", source = "trainer.username")
-    WorkoutDtoResponse workoutToDtoResponse(Workout workout);
+    @Mapping(target = "statusRecord", expression = "java(recordService.getStatusByClient(workout.getId()).name())")
+    WorkoutDtoResponse workoutToDtoResponse(Workout workout, @Context RecordService recordService);
 
     @Mapping(target = "date", source = "localDate")
     @Mapping(target = "availableSeats", source = "request.totalSeats")

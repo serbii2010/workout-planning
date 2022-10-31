@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -73,6 +74,19 @@ public class GlobalErrorHandler {
         return error;
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError badType(HttpServletRequest request, HttpMessageNotReadableException exception) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(
+                BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
+                "",
+                exception.getCause().getMessage()));
+        log.error("Error: {} {}", request, exception);
+        return error;
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
@@ -83,13 +97,22 @@ public class GlobalErrorHandler {
         return error;
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public MyError forbidden(AccessDeniedException exception) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.FORBIDDEN.name(), null, InternalErrorCode.FORBIDDEN.getErrorString()));
+        return error;
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public MyError badLocalDateTime(HttpServletRequest request, MethodArgumentTypeMismatchException e) {
+    public MyError badInputParam(HttpServletRequest request, MethodArgumentTypeMismatchException e) {
         MyError error = new MyError();
         error.getErrors().add(new ErrorDtoResponse(
-                BadRequestErrorCode.BAD_DATE_OR_TIME.getErrorString(),
+                BadRequestErrorCode.BAD_TYPE_PARAM.getErrorString(),
                 e.getName(),
                 e.getCause().getCause().getMessage()));
         log.error("Error: {} {}", request, e);
@@ -134,15 +157,6 @@ public class GlobalErrorHandler {
     public MyError internalError(HttpServletRequest request, Exception e) {
         MyError error = getInternalError();
         log.error("Error: {} {}", request, e);
-        return error;
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public MyError forbidden() {
-        MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.FORBIDDEN.getErrorString(), null, null));
         return error;
     }
 
