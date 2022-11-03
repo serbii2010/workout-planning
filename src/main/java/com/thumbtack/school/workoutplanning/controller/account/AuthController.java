@@ -2,8 +2,10 @@ package com.thumbtack.school.workoutplanning.controller.account;
 
 import com.thumbtack.school.workoutplanning.dto.request.account.AuthDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.response.account.RoleDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.service.UserService;
+import com.thumbtack.school.workoutplanning.utils.AuthUtils;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,14 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 
-@CrossOrigin(origins = "http://localhost:8000/api/auth", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("permitAll()")
     @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public AuthDtoResponse login(@RequestBody AuthDtoRequest requestDto, HttpServletResponse response)
             throws BadRequestException {
@@ -37,4 +38,9 @@ public class AuthController {
         userService.logout(response);
     }
 
+    @PreAuthorize(value = "isAuthenticated()")
+    @GetMapping(path = "/role", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public RoleDtoResponse getRole() {
+        return new RoleDtoResponse(AuthUtils.getRole().name());
+    }
 }

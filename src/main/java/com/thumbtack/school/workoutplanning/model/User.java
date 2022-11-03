@@ -42,6 +42,7 @@ public class User {
     @Size(min = 5, message = "Min length 5 symbols")
     private String password;
     private Boolean isActive = true;
+    private Boolean isSocial = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
@@ -57,4 +58,12 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Record> records;
 
+    public User(String username, String password,  String firstName, String lastName, String email, Boolean isSocial) {
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.isSocial = isSocial;
+    }
 }
