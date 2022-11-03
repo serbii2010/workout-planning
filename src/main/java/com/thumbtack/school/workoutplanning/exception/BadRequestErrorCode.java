@@ -23,7 +23,8 @@ public enum BadRequestErrorCode {
     BAD_RULE_VALUE("Bad rule value"),
     CLIENT_NOT_FOUND("Client not found"),
     RULE_NOT_SET("Rule not set"),
-    BAD_TYPE_PARAM("Bad type param");
+    BAD_TYPE_PARAM("Bad type param"),
+    BAD_REDIRECT_URL("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
 
     private String error;
 

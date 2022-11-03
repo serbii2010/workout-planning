@@ -26,6 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Service;
 
 import static com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider.JWT_TOKEN_NAME;
@@ -63,18 +64,13 @@ public class UserService {
     public AuthDtoResponse auth(String username, String password, HttpServletResponse response) throws BadRequestException {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            User user = findByUsername(username);
+            User user = userRepository.findByEmailOrUsername(username);
 
             if (user == null || !user.getIsActive()) {
                 throw new UsernameNotFoundException("User with username: " + username + " not found");
             }
 
-            String token = jwtTokenProvider.createToken(username, user.getRole());
-
-            Cookie cookie = new Cookie(JWT_TOKEN_NAME, token);
-            cookie.setPath("/");
-            cookie.setSecure(true);
-            response.addCookie(cookie);
+            setJwtToken(user, response);
             return UserMapper.INSTANCE.userToAuthDtoResponse(user);
         } catch (AuthenticationException e) {
             throw new BadRequestException(BadRequestErrorCode.INVALID_USERNAME_OR_PASSWORD);
@@ -155,6 +151,35 @@ public class UserService {
     public void logout(HttpServletResponse response) {
         Cookie cookie = new Cookie(JWT_TOKEN_NAME, null);
         cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        response.addCookie(cookie);
+    }
+
+    public void loginWithSocial(DefaultOidcUser principal, HttpServletResponse httpServletResponse) {
+        User user = userRepository.findByEmailOrUsername(principal.getEmail());
+        if (user == null) {
+            user = new User(
+                    principal.getAttribute("name"),
+                    "",
+                    principal.getAttribute("given_name"),
+                    principal.getAttribute("family_name"),
+                    principal.getAttribute("email"),
+                    true
+            );
+            try {
+                register(user, AuthType.CLIENT);
+            } catch (BadRequestException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        setJwtToken(user, httpServletResponse);
+    }
+
+    private void setJwtToken(User user, HttpServletResponse response) {
+        String token = jwtTokenProvider.createToken(user.getUsername(), user.getRole());
+
+        Cookie cookie = new Cookie(JWT_TOKEN_NAME, token);
         cookie.setPath("/");
         cookie.setSecure(true);
         response.addCookie(cookie);
