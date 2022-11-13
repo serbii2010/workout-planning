@@ -38,6 +38,7 @@ public class AccountHelper {
 
     public static AuthDtoResponse getAdminAuthDtoResponse() {
         return new AuthDtoResponse(
+                1L,
                 "admin",
                 "adminFirst",
                 "adminLast",
@@ -49,6 +50,7 @@ public class AccountHelper {
 
     public static AuthDtoResponse getTrainerAuthDtoResponse() {
         return new AuthDtoResponse(
+                2L,
                 "trainer",
                 "tr",
                 "tra",
@@ -71,6 +73,7 @@ public class AccountHelper {
 
     public static AuthDtoResponse getClientAuthDtoResponse() {
         return new AuthDtoResponse(
+                1L,
                 "client",
                 "clientFirst",
                 "clientLast",
@@ -112,6 +115,7 @@ public class AccountHelper {
 
     public static AuthDtoResponse getAuthAfterUpdateDtoResponse() {
         return new AuthDtoResponse(
+                2L,
                 "trainer",
                 "trainer-f",
                 "tr",

@@ -4,7 +4,7 @@ import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.model.AuthType;
 import com.thumbtack.school.workoutplanning.model.Record;
-import com.thumbtack.school.workoutplanning.model.StatusRecord;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.model.Workout;
 import com.thumbtack.school.workoutplanning.repository.RecordRepository;
@@ -40,10 +40,11 @@ public class RecordService {
         return workoutRepository.findById(id).orElseThrow(EntityNotFoundException::new).getRecords();
     }
 
-    public Record insert(Long workoutId, String username, StatusRecord status) throws BadRequestException {
+    public Record insert(Long workoutId, String username, RecordStatus status) throws BadRequestException {
         if (AuthUtils.getRole().equals(AuthType.TRAINER)) {
             throw new AccessDeniedException("Access to insert record denied");
         }
+        String uname = AuthUtils.getUsername();
         if (AuthUtils.getRole().equals(AuthType.CLIENT) && !AuthUtils.getUsername().equals(username)) {
             throw new BadRequestException(BadRequestErrorCode.INVALID_USERNAME, String.format("Username expected %s", AuthUtils.getUsername()));
         }
@@ -53,7 +54,7 @@ public class RecordService {
             throw new BadRequestException(BadRequestErrorCode.WORKOUT_ALREADY_STARTED);
         }
 
-        if (workout.getAvailableSeats() == 0 && !StatusRecord.QUEUED.equals(status)) {
+        if (workout.getAvailableSeats() == 0 && !RecordStatus.QUEUED.equals(status)) {
             throw new BadRequestException(BadRequestErrorCode.NOT_AVAILABLE_SEATS);
         }
 
@@ -62,7 +63,7 @@ public class RecordService {
             throw new BadRequestException(BadRequestErrorCode.CLIENT_NOT_FOUND);
         }
 
-        if (StatusRecord.ACTIVE.equals(status)) {
+        if (RecordStatus.ACTIVE.equals(status)) {
             workout.setAvailableSeats(workout.getAvailableSeats() - 1);
         }
         workoutRepository.save(workout);
@@ -79,7 +80,7 @@ public class RecordService {
         return recordRepository.findAll();
     }
 
-    public Record setStatus(Long workoutId, String username, StatusRecord status) throws BadRequestException {
+    public Record setStatus(Long workoutId, String username, RecordStatus status) throws BadRequestException {
         User client = userRepository.findByUsername(username);
 
         Optional<Workout> workoutOptional = workoutRepository.findById(workoutId);
@@ -97,41 +98,36 @@ public class RecordService {
             throw new BadRequestException(BadRequestErrorCode.RECORD_NOT_FOUND);
         }
 
-        if (record.getStatus().equals(StatusRecord.ACTIVE) && status.equals(StatusRecord.CANCELLED)) {
-            List<Record> queueRecord = recordRepository.findAllByStatusOrderByDateTime(StatusRecord.QUEUED);
+        if (record.getStatus().equals(RecordStatus.ACTIVE) && status.equals(RecordStatus.CANCELLED)) {
+            List<Record> queueRecord = recordRepository.findAllByStatusOrderByDateTime(RecordStatus.QUEUED);
             if (queueRecord.size() == 0) {
                 workout.setAvailableSeats(workout.getAvailableSeats() + 1);
                 workoutRepository.save(workout);
             } else {
-                queueRecord.get(0).setStatus(StatusRecord.ACTIVE);
+                queueRecord.get(0).setStatus(RecordStatus.ACTIVE);
                 recordRepository.save(queueRecord.get(0));
             }
             record.setStatus(status);
-            recordRepository.delete(record);
-        } else {
-            record.setStatus(status);
-            if (status.equals(StatusRecord.CANCELLED)) {
-                recordRepository.delete(record);
-            } else {
-                recordRepository.save(record);
-            }
+            recordRepository.save(record);
         }
+        record.setStatus(status);
+        recordRepository.save(record);
         return record;
     }
 
-    public StatusRecord getStatusByClient(Long workoutId) {
+    public RecordStatus getStatusByClient(Long workoutId) {
         if (AuthUtils.getRole().equals(AuthType.CLIENT)) {
             User client = userRepository.findByUsername(AuthUtils.getUsername());
             Optional<Workout> workout = workoutRepository.findById(workoutId);
             if (client == null || workout.isEmpty()) {
-                return StatusRecord.UNDEFINED;
+                return RecordStatus.UNDEFINED;
             }
             Record record = recordRepository.findByUserAndWorkout(client, workout.get());
             if (record == null) {
-                return StatusRecord.UNDEFINED;
+                return RecordStatus.UNDEFINED;
             }
             return record.getStatus();
         }
-        return StatusRecord.UNDEFINED;
+        return RecordStatus.UNDEFINED;
     }
 }

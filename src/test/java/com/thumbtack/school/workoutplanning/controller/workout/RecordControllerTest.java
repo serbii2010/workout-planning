@@ -9,7 +9,7 @@ import com.thumbtack.school.workoutplanning.helper.AccountHelper;
 import com.thumbtack.school.workoutplanning.helper.OptionHelper;
 import com.thumbtack.school.workoutplanning.helper.RecordHelper;
 import com.thumbtack.school.workoutplanning.helper.WorkoutHelper;
-import com.thumbtack.school.workoutplanning.model.StatusRecord;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.service.DebugService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -129,7 +129,7 @@ class RecordControllerTest {
         RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
         RecordDtoResponse response = RecordHelper.getRecordCancelDtoResponse();
-        mvc.perform(put("/api/records/"+ StatusRecord.CANCELLED.name())
+        mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
@@ -149,6 +149,7 @@ class RecordControllerTest {
 
         List<RecordDtoResponse> responses = new ArrayList<>();
         responses.add(RecordHelper.getRecordTwoActiveDtoResponse());
+        responses.add(RecordHelper.getRecordCancelDtoResponse());
 
         mvc.perform(get("/api/records")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -164,7 +165,7 @@ class RecordControllerTest {
         RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
         RecordDtoResponse response = RecordHelper.getRecordSkipDtoResponse();
-        mvc.perform(put("/api/records/"+ StatusRecord.SKIPPED.name())
+        mvc.perform(put("/api/records/"+ RecordStatus.SKIPPED.name())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
@@ -243,7 +244,7 @@ class RecordControllerTest {
         try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
             dt.when(LocalDateTime::now).thenReturn(dateTime);
 
-            mvc.perform(put("/api/records/"+ StatusRecord.CANCELLED.name())
+            mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(request))
@@ -265,7 +266,7 @@ class RecordControllerTest {
         try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
             dt.when(LocalDateTime::now).thenReturn(dateTime);
 
-            mvc.perform(put("/api/records/"+ StatusRecord.CANCELLED.name())
+            mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(request))
@@ -286,7 +287,7 @@ class RecordControllerTest {
         try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
             dt.when(LocalDateTime::now).thenReturn(dateTime);
 
-            mvc.perform(put("/api/records/"+ StatusRecord.CANCELLED.name())
+            mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(request))

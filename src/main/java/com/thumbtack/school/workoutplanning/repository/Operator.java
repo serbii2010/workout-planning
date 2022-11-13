@@ -5,4 +5,6 @@ public enum Operator {
     LIKES,
     LARGE,
     LESS,
+    EQUALS_STATUS,
+    EQUALS_USER
 }

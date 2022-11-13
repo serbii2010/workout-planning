@@ -1,6 +1,6 @@
 package com.thumbtack.school.workoutplanning.dto.response.workout;
 
-import com.thumbtack.school.workoutplanning.model.StatusRecord;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +29,6 @@ public class WorkoutDtoResponse {
                               String typeWorkout,
                               Integer totalSeats,
                               Integer availableSeats) {
-        this(id, date, timeStart, trainer, duration, typeWorkout, totalSeats, availableSeats, StatusRecord.UNDEFINED.name());
+        this(id, date, timeStart, trainer, duration, typeWorkout, totalSeats, availableSeats, RecordStatus.UNDEFINED.name());
     }
 }
