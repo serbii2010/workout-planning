@@ -3,7 +3,7 @@ package com.thumbtack.school.workoutplanning.helper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thumbtack.school.workoutplanning.dto.request.workout.RecordDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.workout.RecordDtoResponse;
-import com.thumbtack.school.workoutplanning.model.StatusRecord;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,7 +39,7 @@ public class RecordHelper {
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.parse("11:30")).
                         format(formatter),
                 LocalDateTime.now().format(formatter),
-                StatusRecord.ACTIVE.name()
+                RecordStatus.ACTIVE.name()
         );
     }
 
@@ -53,7 +53,7 @@ public class RecordHelper {
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.parse("11:30")).
                         format(formatter),
                 LocalDateTime.now().format(formatter),
-                StatusRecord.ACTIVE.name()
+                RecordStatus.ACTIVE.name()
         );
     }
 
@@ -67,7 +67,7 @@ public class RecordHelper {
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.parse("11:30")).
                         format(formatter),
                 LocalDateTime.now().format(formatter),
-                StatusRecord.QUEUED.name()
+                RecordStatus.QUEUED.name()
         );
     }
 
@@ -81,7 +81,7 @@ public class RecordHelper {
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.parse("11:30")).
                         format(formatter),
                 LocalDateTime.now().format(formatter),
-                StatusRecord.CANCELLED.name()
+                RecordStatus.CANCELLED.name()
         );
     }
 
@@ -95,7 +95,7 @@ public class RecordHelper {
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.parse("11:30")).
                         format(formatter),
                 LocalDateTime.now().format(formatter),
-                StatusRecord.CANCELLED.name()
+                RecordStatus.CANCELLED.name()
         );
     }
 
@@ -109,7 +109,7 @@ public class RecordHelper {
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.parse("11:30")).
                         format(formatter),
                 LocalDateTime.now().format(formatter),
-                StatusRecord.SKIPPED.name()
+                RecordStatus.SKIPPED.name()
         );
     }
 
@@ -135,7 +135,7 @@ public class RecordHelper {
 
     public static void cancelRecordClient1(MockMvc mvc, ObjectMapper mapper, Cookie cookie) throws Exception {
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
-        mvc.perform(put("/api/records/"+StatusRecord.CANCELLED.name())
+        mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(request))

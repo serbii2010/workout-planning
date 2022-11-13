@@ -8,20 +8,29 @@ import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.mappers.dto.RecordMapper;
 import com.thumbtack.school.workoutplanning.mappers.dto.WorkoutMapper;
 import com.thumbtack.school.workoutplanning.model.Record;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.service.RecordService;
 import com.thumbtack.school.workoutplanning.service.WorkoutService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
@@ -43,9 +52,10 @@ public class WorkoutController {
             @RequestParam(name = "timeStart", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime timeStart,
             @RequestParam(name = "timeEnd", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime timeEnd
-    ) throws BadRequestException, DateTimeParseException {
-        return workoutService.filter(trainer, dateStart, dateEnd, timeStart, timeEnd)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime timeEnd,
+            @RequestParam(name = "recordStatus", required = false) RecordStatus recordStatus
+            ) throws BadRequestException, DateTimeParseException {
+        return workoutService.filter(trainer, dateStart, dateEnd, timeStart, timeEnd, recordStatus)
                 .stream()
                 .map(workout -> WorkoutMapper.INSTANCE.workoutToDtoResponse(workout, recordService))
                 .collect(Collectors.toList());

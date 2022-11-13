@@ -1,5 +1,6 @@
 package com.thumbtack.school.workoutplanning.security.oauth2;
 
+import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.service.UserService;
 import com.thumbtack.school.workoutplanning.utils.CookieUtils;
 import java.io.IOException;
@@ -42,9 +43,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         Optional<String> redirectUri = CookieUtils.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME).map(Cookie::getValue);
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
         DefaultOidcUser defaultOidcUser = (DefaultOidcUser)authentication.getPrincipal();
-        userService.loginWithSocial(defaultOidcUser, response);
+        User user = userService.loginWithSocial(defaultOidcUser, response);
 
-        return UriComponentsBuilder.fromUriString(targetUrl).queryParam("token", defaultOidcUser.getEmail()).build().toUriString();
+        return UriComponentsBuilder.fromUriString(targetUrl)
+                .queryParam("token", defaultOidcUser.getFullName())
+                .queryParam("userId", user.getId())
+                .build().toUriString();
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {

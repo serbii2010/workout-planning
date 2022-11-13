@@ -4,6 +4,8 @@ import com.thumbtack.school.workoutplanning.dto.request.account.UpdateAccountDto
 import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
+import com.thumbtack.school.workoutplanning.exception.InternalErrorCode;
+import com.thumbtack.school.workoutplanning.exception.InternalException;
 import com.thumbtack.school.workoutplanning.mappers.dto.UserMapper;
 import com.thumbtack.school.workoutplanning.model.AuthType;
 import com.thumbtack.school.workoutplanning.model.Role;
@@ -14,6 +16,7 @@ import com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider;
 import com.thumbtack.school.workoutplanning.utils.AuthUtils;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -141,11 +144,15 @@ public class UserService {
         }
     }
 
-    public User getById(Long id) throws BadRequestException {
-        if (userRepository.findById(id).isEmpty()) {
+    public User getById(Long id) throws BadRequestException, InternalException {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
             throw new BadRequestException(BadRequestErrorCode.USER_NOT_FOUND);
         }
-        return userRepository.findById(id).get();
+        if (!AuthType.ADMIN.equals(AuthUtils.getRole()) && !id.equals(AuthUtils.getUserId())) {
+            throw new InternalException(InternalErrorCode.FORBIDDEN);
+        }
+        return user.get();
     }
 
     public void logout(HttpServletResponse response) {
@@ -156,7 +163,7 @@ public class UserService {
         response.addCookie(cookie);
     }
 
-    public void loginWithSocial(DefaultOidcUser principal, HttpServletResponse httpServletResponse) {
+    public User loginWithSocial(DefaultOidcUser principal, HttpServletResponse httpServletResponse) {
         User user = userRepository.findByEmailOrUsername(principal.getEmail());
         if (user == null) {
             user = new User(
@@ -174,6 +181,7 @@ public class UserService {
             }
         }
         setJwtToken(user, httpServletResponse);
+        return user;
     }
 
     private void setJwtToken(User user, HttpServletResponse response) {

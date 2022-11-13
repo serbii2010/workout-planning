@@ -5,7 +5,7 @@ import com.thumbtack.school.workoutplanning.dto.response.workout.RecordDtoRespon
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.mappers.dto.RecordMapper;
 import com.thumbtack.school.workoutplanning.model.Record;
-import com.thumbtack.school.workoutplanning.model.StatusRecord;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.service.RecordService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,20 +41,20 @@ public class RecordController {
             "T(com.thumbtack.school.workoutplanning.model.AuthType).CLIENT.name())")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public RecordDtoResponse insert(@Valid @RequestBody RecordDtoRequest request) throws BadRequestException {
-        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.insert(request.getWorkoutId(), request.getUsername(), StatusRecord.ACTIVE));
+        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.insert(request.getWorkoutId(), request.getUsername(), RecordStatus.ACTIVE));
     }
 
     @PreAuthorize(value = "hasAnyRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name()," +
             "T(com.thumbtack.school.workoutplanning.model.AuthType).CLIENT.name())")
     @PostMapping(path = "/queue", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public RecordDtoResponse insertInQueue(@Valid @RequestBody RecordDtoRequest request) throws BadRequestException {
-        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.insert(request.getWorkoutId(), request.getUsername(), StatusRecord.QUEUED));
+        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.insert(request.getWorkoutId(), request.getUsername(), RecordStatus.QUEUED));
     }
 
     @PreAuthorize(value = "hasAnyRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name()," +
             "T(com.thumbtack.school.workoutplanning.model.AuthType).CLIENT.name())")
     @PutMapping(path = "/{status}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RecordDtoResponse setStatus(@PathVariable StatusRecord status, @Valid @RequestBody RecordDtoRequest request) throws BadRequestException {
+    public RecordDtoResponse setStatus(@PathVariable RecordStatus status, @Valid @RequestBody RecordDtoRequest request) throws BadRequestException {
         return RecordMapper.INSTANCE.recordToDtoResponse(recordService.setStatus(request.getWorkoutId(), request.getUsername(), status));
     }
 }

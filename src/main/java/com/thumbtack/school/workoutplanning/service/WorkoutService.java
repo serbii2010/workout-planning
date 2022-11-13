@@ -5,11 +5,14 @@ import com.thumbtack.school.workoutplanning.dto.request.workout.WorkoutDtoReques
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.mappers.dto.WorkoutMapper;
+import com.thumbtack.school.workoutplanning.model.AuthType;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.model.Workout;
 import com.thumbtack.school.workoutplanning.repository.Operator;
 import com.thumbtack.school.workoutplanning.repository.WorkoutRepository;
 import com.thumbtack.school.workoutplanning.repository.WorkoutSpecificationsBuilder;
+import com.thumbtack.school.workoutplanning.utils.AuthUtils;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -25,6 +28,7 @@ import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -104,7 +108,7 @@ public class WorkoutService {
         return workout;
     }
 
-    public List<Workout> filter(String trainerUsername, LocalDate dateStart, LocalDate dateEnd, LocalTime timeStart, LocalTime timeEnd) throws BadRequestException {
+    public List<Workout> filter(String trainerUsername, LocalDate dateStart, LocalDate dateEnd, LocalTime timeStart, LocalTime timeEnd, RecordStatus recordStatus) throws BadRequestException, AccessDeniedException {
         WorkoutSpecificationsBuilder builder = new WorkoutSpecificationsBuilder();
 
         if (trainerUsername != null) {
@@ -125,6 +129,14 @@ public class WorkoutService {
         }
         if (timeEnd != null) {
             builder.with("timeStart", Operator.LESS, timeEnd.plusSeconds(1));
+        }
+        if (recordStatus != null) {
+            if (!AuthUtils.getRole().equals(AuthType.CLIENT)) {
+                throw new AccessDeniedException("Action forbidden");
+            }
+            User user = userService.findByUsername(AuthUtils.getUsername());
+            builder.with("user", Operator.EQUALS_USER, user);
+            builder.with("status", Operator.EQUALS_STATUS, recordStatus);
         }
         Specification<Workout> specification = builder.build();
         return workoutRepository.findAll(specification);

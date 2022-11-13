@@ -36,13 +36,13 @@ public class Record {
     @ManyToOne(fetch = FetchType.EAGER)
     private Workout workout;
 
-    private StatusRecord status = StatusRecord.ACTIVE;
+    private RecordStatus status = RecordStatus.ACTIVE;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime dateTime;
 
-    public Record(User client, Workout workout, StatusRecord status) {
+    public Record(User client, Workout workout, RecordStatus status) {
         this(null, client, workout, status, null);
     }
 }

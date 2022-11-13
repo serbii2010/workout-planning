@@ -30,7 +30,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Size(min = 5, message = "Min length 5 symbols")
+    @Size(min = 4, message = "Min length 5 symbols")
     @Column(unique = true)
     private String username;
     @Column(unique = true)

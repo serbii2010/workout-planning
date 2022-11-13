@@ -1,10 +1,10 @@
 package com.thumbtack.school.workoutplanning.model;
 
-public enum StatusRecord {
+public enum RecordStatus {
     UNDEFINED,
     ACTIVE,
     QUEUED,
     CANCELLED,
     SKIPPED,
-    ACCEPTED,
+    VISITED,
 }
