@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1668343376389-1" author="user (generated)">
+        <createTable tableName="recovery_code">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_recovery_code"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="time_create" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1668343376389-2" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="recovery_code"
+                                 constraintName="FK_RECOVERY_CODE_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="user" referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet id="1668343376389-3" author="user (generated)">
+        <dropForeignKeyConstraint baseTableName="code_restore" constraintName="fk_code_restore_on_user"/>
+    </changeSet>
+    <changeSet id="1668343376389-7" author="user (generated)">
+        <dropTable cascadeConstraints="true" tableName="code_restore"/>
+    </changeSet>
+
+</databaseChangeLog>
