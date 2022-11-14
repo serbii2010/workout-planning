@@ -6,6 +6,7 @@ import com.thumbtack.school.workoutplanning.dto.response.account.UserDtoResponse
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.exception.InternalException;
 import com.thumbtack.school.workoutplanning.mappers.dto.UserMapper;
+import com.thumbtack.school.workoutplanning.model.AccountState;
 import com.thumbtack.school.workoutplanning.model.User;
 import com.thumbtack.school.workoutplanning.service.UserService;
 import java.util.List;
@@ -55,14 +56,14 @@ public class AccountController {
     @PreAuthorize(value = "hasRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name())")
     @PutMapping(path = "/{username}/deactivate", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public AuthDtoResponse deactivate(@PathVariable String username) throws BadRequestException {
-        User user = userService.setActive(username, false);
+        User user = userService.setState(username, AccountState.BLOCKED);
         return UserMapper.INSTANCE.userToAuthDtoResponse(user);
     }
 
     @PreAuthorize(value = "hasRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name())")
     @PutMapping(path = "/{username}/activate", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public AuthDtoResponse activate(@PathVariable String username) throws BadRequestException {
-        User user = userService.setActive(username, true);
+        User user = userService.setState(username, AccountState.ACTIVE);
         return UserMapper.INSTANCE.userToAuthDtoResponse(user);
     }
 }

@@ -1,15 +1,12 @@
 package com.thumbtack.school.workoutplanning.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.thumbtack.school.workoutplanning.dto.response.ErrorDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
 import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.exception.InternalErrorCode;
 import com.thumbtack.school.workoutplanning.exception.InternalException;
 import com.thumbtack.school.workoutplanning.security.jwt.JwtAuthenticationException;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.HttpStatus;
@@ -24,6 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import javax.security.auth.login.AccountNotFoundException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Aspect
 @RestControllerAdvice
@@ -51,6 +55,20 @@ public class GlobalErrorHandler {
         return error;
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError onConstraintValidationException(ConstraintViolationException e) {
+        final MyError error = new MyError();
+        e.getConstraintViolations().forEach(violation -> {
+            ErrorDtoResponse errorDtoResponse = new ErrorDtoResponse();
+            errorDtoResponse.setErrorCode(BadRequestErrorCode.BAD_TYPE_PARAM.getErrorString());
+            errorDtoResponse.setField(violation.getPropertyPath().toString());
+            errorDtoResponse.setMessage(violation.getMessage());
+            error.getErrors().add(errorDtoResponse);
+        });
+        return error;
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -79,11 +97,22 @@ public class GlobalErrorHandler {
     @ResponseBody
     public MyError badType(HttpServletRequest request, HttpMessageNotReadableException exception) {
         MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(
-                BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
-                "",
-                exception.getCause().getMessage()));
-        log.error("Error: {} {}", request, exception);
+
+        if (exception.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException ife = (InvalidFormatException) exception.getCause();
+
+            error.getErrors().add(new ErrorDtoResponse(
+                    BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
+                    ife.getPath().get(0).getFieldName(),
+                    ife.getOriginalMessage()));
+            log.error("Error: {} {}", request, exception.getMessage());
+        } else {
+            error.getErrors().add(new ErrorDtoResponse(
+                    BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
+                    "",
+                    "Bad type field"));
+            log.error("Error: {} {}", request, exception.getMessage());
+        }
         return error;
     }
 
@@ -92,7 +121,17 @@ public class GlobalErrorHandler {
     @ResponseBody
     public MyError usernameNotFound(HttpServletRequest request, Exception e) {
         MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.INVALID_AUTHENTICATION.getErrorString(), null, null));
+        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.INVALID_AUTHENTICATION.getErrorString(), null, e.getMessage()));
+        log.error("Error: {} {}", request, e);
+        return error;
+    }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public MyError accountNotFound(HttpServletRequest request, Exception e) {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.USER_NOT_FOUND.getErrorString(), null, e.getMessage()));
         log.error("Error: {} {}", request, e);
         return error;
     }
@@ -170,12 +209,6 @@ public class GlobalErrorHandler {
         return error;
     }
 
-    private MyError getInternalError() {
-        MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.INTERNAL_ERROR.getErrorString(), null, null));
-        return error;
-    }
-
     public static class MyError {
         private List<ErrorDtoResponse> errors = new ArrayList<>();
 
@@ -186,5 +219,11 @@ public class GlobalErrorHandler {
         public void setAllErrors(List<ErrorDtoResponse> Errors) {
             this.errors = Errors;
         }
+    }
+
+    private MyError getInternalError() {
+        MyError error = new MyError();
+        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.INTERNAL_ERROR.getErrorString(), null, null));
+        return error;
     }
 }

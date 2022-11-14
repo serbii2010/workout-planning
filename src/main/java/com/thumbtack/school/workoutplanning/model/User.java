@@ -3,6 +3,8 @@ package com.thumbtack.school.workoutplanning.model;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,6 +20,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import static com.thumbtack.school.workoutplanning.model.AccountState.ACTIVE;
+
 @Entity
 @Getter
 @Setter
@@ -30,18 +34,21 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Size(min = 4, message = "Min length 5 symbols")
+    @Size(min = 4, message = "Min length 4 symbols")
     @Column(unique = true)
     private String username;
     @Column(unique = true)
     private String email;
     private String firstName;
     private String lastName;
-    @Size(min = 10, message = "Min length 10 symbols")
+
     private String phone;
-    @Size(min = 5, message = "Min length 5 symbols")
+
     private String password;
-    private Boolean isActive = true;
+
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    @Enumerated(value = EnumType.ORDINAL)
+    private AccountState state = ACTIVE;
     private Boolean isSocial = false;
 
     @ManyToOne(fetch = FetchType.EAGER)

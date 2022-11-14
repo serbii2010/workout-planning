@@ -24,7 +24,10 @@ public enum BadRequestErrorCode {
     CLIENT_NOT_FOUND("Client not found"),
     RULE_NOT_SET("Rule not set"),
     BAD_TYPE_PARAM("Bad type param"),
-    BAD_REDIRECT_URL("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
+    BAD_REDIRECT_URL("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication"), 
+    CODE_EXPIRED("Restore code expired"),
+    ACCOUNT_HAS_BAD_STATE("Account has bad state"),
+    CODE_NOT_FOUND("Code not found");
 
     private String error;
 
