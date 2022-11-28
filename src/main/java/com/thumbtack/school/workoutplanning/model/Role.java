@@ -33,5 +33,4 @@ public class Role {
     @Transient
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Set<User> users;
-
 }

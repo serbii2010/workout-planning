@@ -2,6 +2,7 @@ package com.thumbtack.school.workoutplanning.service;
 
 import com.thumbtack.school.workoutplanning.repository.OptionRepository;
 import com.thumbtack.school.workoutplanning.repository.RecordRepository;
+import com.thumbtack.school.workoutplanning.repository.SubscriptionRepository;
 import com.thumbtack.school.workoutplanning.repository.UserRepository;
 import com.thumbtack.school.workoutplanning.repository.WorkoutRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +23,22 @@ public class DebugService {
     @Autowired
     private OptionRepository optionRepository;
     @Autowired
+    private SubscriptionRepository subscriptionRepository;
+    @Autowired
     private EntityManager entityManager;
 
     public void clear() {
+        subscriptionRepository.deleteAll();
         workoutRepository.deleteAll();
         userRepository.deleteAll();
         optionRepository.deleteAll();
         recordRepository.deleteAll();
-        entityManager.createNativeQuery("ALTER SEQUENCE  workout_id_seq RESTART WITH 1").executeUpdate();
-        entityManager.createNativeQuery("ALTER SEQUENCE  user_id_seq RESTART WITH 1").executeUpdate();
-        entityManager.createNativeQuery("ALTER SEQUENCE  record_id_seq RESTART WITH 1").executeUpdate();
-        entityManager.createNativeQuery("ALTER SEQUENCE  role_id_seq RESTART WITH 1").executeUpdate();
-        entityManager.createNativeQuery("ALTER SEQUENCE  option_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE workout_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE user_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE record_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE role_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE option_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE hibernate_sequence RESTART WITH 1").executeUpdate();
     }
 
 }

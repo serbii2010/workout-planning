@@ -1,7 +1,6 @@
 package com.thumbtack.school.workoutplanning.security.jwt;
 
 import com.thumbtack.school.workoutplanning.model.Role;
-import com.thumbtack.school.workoutplanning.security.JwtUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;

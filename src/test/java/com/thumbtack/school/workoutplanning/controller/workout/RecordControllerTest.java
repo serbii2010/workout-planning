@@ -8,15 +8,10 @@ import com.thumbtack.school.workoutplanning.dto.response.workout.RecordDtoRespon
 import com.thumbtack.school.workoutplanning.helper.AccountHelper;
 import com.thumbtack.school.workoutplanning.helper.OptionHelper;
 import com.thumbtack.school.workoutplanning.helper.RecordHelper;
+import com.thumbtack.school.workoutplanning.helper.SubscribeHelper;
 import com.thumbtack.school.workoutplanning.helper.WorkoutHelper;
 import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.service.DebugService;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +24,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.servlet.http.Cookie;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thumbtack.school.workoutplanning.security.jwt.JwtTokenProvider.JWT_TOKEN_NAME;
 import static org.mockito.Mockito.mockStatic;
@@ -60,6 +62,8 @@ class RecordControllerTest {
         adminCookie = AccountHelper.loginAdmin(mvc, mapper);
         AccountHelper.registrationTrainer(mvc, mapper, adminCookie);
         AccountHelper.registrationClient(mvc, mapper);
+        SubscribeHelper.insertSubscribeUnlimited(mvc, mapper, adminCookie);
+        SubscribeHelper.activatedSubscription(1, mvc, mapper, adminCookie);
         WorkoutHelper.generateWorkoutsCurrentWeek(mvc, mapper, adminCookie);
     }
 
@@ -93,6 +97,27 @@ class RecordControllerTest {
 
     @Test
     void insert() throws Exception {
+        LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("18:59:59"));
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            dt.when(LocalDateTime::now).thenReturn(dateTime);
+            RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
+            RecordDtoResponse response = RecordHelper.getRecordDtoResponse();
+
+            mvc.perform(post("/api/records")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+                            .cookie(adminCookie))
+                    .andExpect(status().isOk())
+                    .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
+                    .andExpect(content().json(mapper.writeValueAsString(response)));
+        }
+    }
+
+    @Test
+    void insert_ByClient() throws Exception {
+        Cookie cookie = AccountHelper.loginClient(mvc, mapper);
+
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
         RecordDtoResponse response = RecordHelper.getRecordDtoResponse();
 
@@ -100,7 +125,7 @@ class RecordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
-                        .cookie(adminCookie))
+                        .cookie(cookie))
                 .andExpect(status().isOk())
                 .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
                 .andExpect(content().json(mapper.writeValueAsString(response)));
@@ -109,55 +134,71 @@ class RecordControllerTest {
     @Test
     void insertInQueue() throws Exception {
         AccountHelper.registrationClientTwo(mvc, mapper);
+        SubscribeHelper.insertSubscribeUnlimitedByClientTwo(mvc, mapper, adminCookie);
+        SubscribeHelper.activatedSubscription(2, mvc, mapper, adminCookie);
         RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
 
-        RecordDtoRequest request = RecordHelper.getRecordTwoDtoRequest();
-        RecordDtoResponse response = RecordHelper.getRecordQueueDtoResponse();
+        LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("18:59:59"));
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            dt.when(LocalDateTime::now).thenReturn(dateTime);
+            RecordDtoRequest request = RecordHelper.getRecordTwoDtoRequest();
+            RecordDtoResponse response = RecordHelper.getRecordQueueDtoResponse();
 
-        mvc.perform(post("/api/records/queue")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request))
-                        .cookie(adminCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
-                .andExpect(content().json(mapper.writeValueAsString(response)));
+            mvc.perform(post("/api/records/queue")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+                            .cookie(adminCookie))
+                    .andExpect(status().isOk())
+                    .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
+                    .andExpect(content().json(mapper.writeValueAsString(response)));
+        }
     }
 
     @Test
     void cancel() throws Exception {
-        RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
-        RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
-        RecordDtoResponse response = RecordHelper.getRecordCancelDtoResponse();
-        mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request))
-                        .cookie(adminCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
-                .andExpect(content().json(mapper.writeValueAsString(response)));
+        LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("18:59:59"));
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            dt.when(LocalDateTime::now).thenReturn(dateTime);
+            RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
+            RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
+            RecordDtoResponse response = RecordHelper.getRecordCancelDtoResponse();
+            mvc.perform(put("/api/records/" + RecordStatus.CANCELLED.name())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+                            .cookie(adminCookie))
+                    .andExpect(status().isOk())
+                    .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
+                    .andExpect(content().json(mapper.writeValueAsString(response)));
+        }
     }
-
 
     @Test
     void cancel_withQueueClient() throws Exception {
         AccountHelper.registrationClientTwo(mvc, mapper);
-        RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
-        RecordHelper.insertRecordByClient2InQueue(mvc, mapper, adminCookie);
-        RecordHelper.cancelRecordClient1(mvc, mapper, adminCookie);
+        SubscribeHelper.insertSubscribeUnlimitedByClientTwo(mvc, mapper, adminCookie);
+        SubscribeHelper.activatedSubscription(2, mvc, mapper, adminCookie);
 
-        List<RecordDtoResponse> responses = new ArrayList<>();
-        responses.add(RecordHelper.getRecordTwoActiveDtoResponse());
-        responses.add(RecordHelper.getRecordCancelDtoResponse());
+        LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("18:59:59"));
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            dt.when(LocalDateTime::now).thenReturn(dateTime);
+            RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
+            RecordHelper.insertRecordByClient2InQueue(mvc, mapper, adminCookie);
+            RecordHelper.cancelRecordClient1(mvc, mapper, adminCookie);
 
-        mvc.perform(get("/api/records")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .cookie(adminCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
-                .andExpect(content().json(mapper.writeValueAsString(responses)));
+            List<RecordDtoResponse> responses = new ArrayList<>();
+            responses.add(RecordHelper.getRecordTwoActiveDtoResponse());
+            responses.add(RecordHelper.getRecordCancelDtoResponse());
+
+            mvc.perform(get("/api/records")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .cookie(adminCookie))
+                    .andExpect(status().isOk())
+                    .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
+                    .andExpect(content().json(mapper.writeValueAsString(responses)));
+        }
     }
 
     @Test
@@ -165,7 +206,7 @@ class RecordControllerTest {
         RecordHelper.insertRecordByClient(mvc, mapper, adminCookie);
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
         RecordDtoResponse response = RecordHelper.getRecordSkipDtoResponse();
-        mvc.perform(put("/api/records/"+ RecordStatus.SKIPPED.name())
+        mvc.perform(put("/api/records/" + RecordStatus.SKIPPED.name())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request))
@@ -241,10 +282,10 @@ class RecordControllerTest {
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
         RecordDtoResponse response = RecordHelper.getRecordCancelDtoResponse();
 
-        try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
             dt.when(LocalDateTime::now).thenReturn(dateTime);
 
-            mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
+            mvc.perform(put("/api/records/" + RecordStatus.CANCELLED.name())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(request))
@@ -263,10 +304,10 @@ class RecordControllerTest {
         LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("19:00:01"));
         RecordDtoRequest request = RecordHelper.getRecordDtoRequest();
 
-        try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
             dt.when(LocalDateTime::now).thenReturn(dateTime);
 
-            mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
+            mvc.perform(put("/api/records/" + RecordStatus.CANCELLED.name())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(request))
@@ -284,10 +325,10 @@ class RecordControllerTest {
         LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("11:25:01"));
         RecordDtoRequest request = RecordHelper.getRecordDtoRequestNow();
 
-        try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+        try (MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
             dt.when(LocalDateTime::now).thenReturn(dateTime);
 
-            mvc.perform(put("/api/records/"+ RecordStatus.CANCELLED.name())
+            mvc.perform(put("/api/records/" + RecordStatus.CANCELLED.name())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(request))

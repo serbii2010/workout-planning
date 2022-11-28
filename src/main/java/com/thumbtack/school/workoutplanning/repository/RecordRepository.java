@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RecordRepository extends JpaRepository<Record, Long> {
-    List<Record> findAllByStatusOrderByDateTime(RecordStatus status);
-
     Record findByUserAndWorkout(User user, Workout workout);
+    List<Record> findAllByStatusAndWorkoutOrderByDateTime(RecordStatus status, Workout workout);
+    List<Record> findAllByUserAndStatus(User user, RecordStatus active);
 }

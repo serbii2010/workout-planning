@@ -19,7 +19,7 @@ public class WorkoutDtoResponse {
     private String typeWorkout;
     private Integer totalSeats;
     private Integer availableSeats;
-    private String statusRecord;
+    private String recordStatus;
 
     public WorkoutDtoResponse(Integer id,
                               LocalDate date,

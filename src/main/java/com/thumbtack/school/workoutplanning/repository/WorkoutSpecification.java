@@ -2,6 +2,7 @@ package com.thumbtack.school.workoutplanning.repository;
 
 import com.thumbtack.school.workoutplanning.model.Record;
 import com.thumbtack.school.workoutplanning.model.Workout;
+import java.util.Map;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -28,13 +29,13 @@ public class WorkoutSpecification implements Specification<Workout> {
                 return builder.like(root.get(filter.getKey()), "%" + filter.getValue() + "%");
             case EQUALS:
                 return builder.equal(root.get(filter.getKey()), filter.getValue());
-            case EQUALS_STATUS: {
+            case EQUALS_STATUS_AND_USER: {
                 Join<Workout, Record> workoutRecordJoin = root.join("records");
-                return builder.equal(workoutRecordJoin.get("status"), filter.getValue());
-            }
-            case EQUALS_USER: {
-                Join<Workout, Record> workoutRecordJoin = root.join("records");
-                return builder.equal(workoutRecordJoin.get("user"), filter.getValue());
+                Map<String, Object> myFilter = (Map<String, Object>) filter.getValue();
+                return builder.and(
+                        builder.equal(workoutRecordJoin.get("user"), myFilter.get("user")),
+                        builder.equal(workoutRecordJoin.get("status"), myFilter.get("status"))
+                );
             }
             default:
                 return null;

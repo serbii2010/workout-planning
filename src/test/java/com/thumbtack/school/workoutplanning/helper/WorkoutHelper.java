@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thumbtack.school.workoutplanning.dto.request.workout.GenerateWorkoutDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.request.workout.WorkoutDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.workout.WorkoutDtoResponse;
+import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,13 @@ public class WorkoutHelper {
         return responses;
     }
 
+    public static List<WorkoutDtoResponse> getListByFilterRecordStatus() {
+        List<WorkoutDtoResponse> responses = new ArrayList<>();
+        responses.add(new WorkoutDtoResponse(2, LocalDate.parse("2022-09-10"), "12:30:00",
+                "trainer", 30, "body", 7, 6, RecordStatus.ACTIVE.name()));
+        return responses;
+    }
+
     public static WorkoutDtoRequest getWorkoutUpdate() {
         return new WorkoutDtoRequest(LocalDate.parse("2022-09-12"), "12:35:00", "trainer", 40, "body2", 8, 6 );
     }
@@ -73,6 +81,16 @@ public class WorkoutHelper {
     public static WorkoutDtoResponse getWorkoutAfterUpdate() {
         return new WorkoutDtoResponse(2, LocalDate.parse("2022-09-12"), "12:35:00",
                 "trainer", 40, "body2", 8, 6);
+    }
+
+    public static WorkoutDtoRequest getWorkoutUpdateDuplicate() {
+        return new WorkoutDtoRequest(LocalDate.parse("2022-09-10"), "12:30:00",
+                "trainer", 30, "body", 7, 7);
+    }
+
+    public static WorkoutDtoResponse getWorkout() {
+        return new WorkoutDtoResponse(2, LocalDate.parse("2022-09-10"), "12:30:00",
+                "trainer", 30, "body", 7, 7);
     }
 
     public static void generateWorkouts(MockMvc mvc, ObjectMapper mapper, Cookie cookie) throws Exception {

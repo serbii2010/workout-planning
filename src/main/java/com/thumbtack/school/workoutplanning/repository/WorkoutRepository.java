@@ -1,14 +1,13 @@
 package com.thumbtack.school.workoutplanning.repository;
 
 import com.thumbtack.school.workoutplanning.model.Workout;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.repository.query.Param;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public interface WorkoutRepository extends JpaRepository<Workout, Long>,
         JpaSpecificationExecutor<Workout> {

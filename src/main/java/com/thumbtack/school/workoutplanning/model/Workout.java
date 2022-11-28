@@ -49,6 +49,6 @@ public class Workout {
     )
     private Set<User> clients;
 
-    @OneToMany(mappedBy = "workout", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "workout", fetch = FetchType.LAZY)
     private List<Record> records;
 }

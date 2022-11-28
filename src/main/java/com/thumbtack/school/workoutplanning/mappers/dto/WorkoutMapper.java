@@ -20,7 +20,7 @@ public interface WorkoutMapper {
     WorkoutMapper INSTANCE = Mappers.getMapper(WorkoutMapper.class);
 
     @Mapping(target = "trainer", source = "trainer.username")
-    @Mapping(target = "statusRecord", expression = "java(recordService.getStatusByClient(workout.getId()).name())")
+    @Mapping(target = "recordStatus", expression = "java(recordService.getStatusByClient(workout.getId()).name())")
     WorkoutDtoResponse workoutToDtoResponse(Workout workout, @Context RecordService recordService);
 
     @Mapping(target = "date", source = "localDate")
