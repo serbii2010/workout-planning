@@ -11,12 +11,14 @@ import com.thumbtack.school.workoutplanning.model.Record;
 import com.thumbtack.school.workoutplanning.model.RecordStatus;
 import com.thumbtack.school.workoutplanning.service.RecordService;
 import com.thumbtack.school.workoutplanning.service.WorkoutService;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -54,7 +56,7 @@ public class WorkoutController {
             @RequestParam(name = "timeEnd", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime timeEnd,
             @RequestParam(name = "recordStatus", required = false) RecordStatus recordStatus
-            ) throws BadRequestException, DateTimeParseException {
+    ) throws BadRequestException, DateTimeParseException {
         return workoutService.filter(trainer, dateStart, dateEnd, timeStart, timeEnd, recordStatus)
                 .stream()
                 .map(workout -> WorkoutMapper.INSTANCE.workoutToDtoResponse(workout, recordService))
@@ -62,7 +64,7 @@ public class WorkoutController {
     }
 
     @PreAuthorize(value = "hasAnyRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name()," +
-                        "T(com.thumbtack.school.workoutplanning.model.AuthType).TRAINER.name())")
+            "T(com.thumbtack.school.workoutplanning.model.AuthType).TRAINER.name())")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public WorkoutDtoResponse findById(@PathVariable Long id) throws BadRequestException {
         return WorkoutMapper.INSTANCE.workoutToDtoResponse(workoutService.findById(id), recordService);

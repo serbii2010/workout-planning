@@ -6,5 +6,7 @@ public enum Operator {
     LARGE,
     LESS,
     EQUALS_STATUS,
-    EQUALS_USER
+    EQUALS_USER,
+    LIKES_USER,
+    EQUALS_STATUS_AND_USER,
 }

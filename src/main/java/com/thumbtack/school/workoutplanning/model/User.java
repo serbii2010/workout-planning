@@ -1,5 +1,6 @@
 package com.thumbtack.school.workoutplanning.model;
 
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -62,8 +63,11 @@ public class User {
     )
     private Set<Workout> workouts;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Record> records;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<Subscription> subscriptions;
 
     public User(String username, String password,  String firstName, String lastName, String email, Boolean isSocial) {
         this.username = username;

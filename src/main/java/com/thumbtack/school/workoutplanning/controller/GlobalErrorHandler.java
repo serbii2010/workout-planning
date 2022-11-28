@@ -1,5 +1,6 @@
 package com.thumbtack.school.workoutplanning.controller;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.thumbtack.school.workoutplanning.dto.response.ErrorDtoResponse;
 import com.thumbtack.school.workoutplanning.exception.BadRequestErrorCode;
@@ -7,6 +8,11 @@ import com.thumbtack.school.workoutplanning.exception.BadRequestException;
 import com.thumbtack.school.workoutplanning.exception.InternalErrorCode;
 import com.thumbtack.school.workoutplanning.exception.InternalException;
 import com.thumbtack.school.workoutplanning.security.jwt.JwtAuthenticationException;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.HttpStatus;
@@ -21,13 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import javax.security.auth.login.AccountNotFoundException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolationException;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Aspect
 @RestControllerAdvice
@@ -97,22 +96,29 @@ public class GlobalErrorHandler {
     @ResponseBody
     public MyError badType(HttpServletRequest request, HttpMessageNotReadableException exception) {
         MyError error = new MyError();
-
-        if (exception.getCause() instanceof InvalidFormatException) {
-            InvalidFormatException ife = (InvalidFormatException) exception.getCause();
-
-            error.getErrors().add(new ErrorDtoResponse(
-                    BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
-                    ife.getPath().get(0).getFieldName(),
-                    ife.getOriginalMessage()));
-            log.error("Error: {} {}", request, exception.getMessage());
-        } else {
+        if (exception.getCause() instanceof JsonParseException) {
+            JsonParseException cause = (JsonParseException) exception.getCause();
             error.getErrors().add(new ErrorDtoResponse(
                     BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
                     "",
-                    "Bad type field"));
-            log.error("Error: {} {}", request, exception.getMessage());
+                    cause.getOriginalMessage()));
+            log.error("Error: {} {}", request, exception);
+            return error;
         }
+        if (exception.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException cause = (InvalidFormatException) exception.getCause();
+            error.getErrors().add(new ErrorDtoResponse(
+                    BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
+                    cause.getPath().get(0).getFieldName(),
+                    cause.getOriginalMessage()));
+            log.error("Error: {} {}", request, exception);
+            return error;
+        }
+        error.getErrors().add(new ErrorDtoResponse(
+                BadRequestErrorCode.UNEXPECTED_TYPE.getErrorString(),
+                "",
+                exception.getCause().getMessage()));
+        log.error("Error: {} {}", request, exception);
         return error;
     }
 
@@ -126,22 +132,12 @@ public class GlobalErrorHandler {
         return error;
     }
 
-    @ExceptionHandler(AccountNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public MyError accountNotFound(HttpServletRequest request, Exception e) {
-        MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(BadRequestErrorCode.USER_NOT_FOUND.getErrorString(), null, e.getMessage()));
-        log.error("Error: {} {}", request, e);
-        return error;
-    }
-
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public MyError forbidden(AccessDeniedException exception) {
         MyError error = new MyError();
-        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.FORBIDDEN.name(), null, InternalErrorCode.FORBIDDEN.getErrorString()));
+        error.getErrors().add(new ErrorDtoResponse(InternalErrorCode.FORBIDDEN.name(), null, exception.getMessage()));
         return error;
     }
 
@@ -150,10 +146,19 @@ public class GlobalErrorHandler {
     @ResponseBody
     public MyError badInputParam(HttpServletRequest request, MethodArgumentTypeMismatchException e) {
         MyError error = new MyError();
+        if (e.getCause() instanceof NumberFormatException) {
+            NumberFormatException cause = (NumberFormatException) e.getCause();
+            error.getErrors().add(new ErrorDtoResponse(
+                    BadRequestErrorCode.BAD_TYPE_PARAM.getErrorString(),
+                    e.getName(),
+                    cause.getMessage()));
+            log.error("Error: {} {}", request, e);
+            return error;
+        }
         error.getErrors().add(new ErrorDtoResponse(
                 BadRequestErrorCode.BAD_TYPE_PARAM.getErrorString(),
                 e.getName(),
-                e.getCause().getCause().getMessage()));
+                e.getCause().getMessage()));
         log.error("Error: {} {}", request, e);
         return error;
     }

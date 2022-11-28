@@ -41,14 +41,14 @@ public class RecordController {
             "T(com.thumbtack.school.workoutplanning.model.AuthType).CLIENT.name())")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public RecordDtoResponse insert(@Valid @RequestBody RecordDtoRequest request) throws BadRequestException {
-        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.insert(request.getWorkoutId(), request.getUsername(), RecordStatus.ACTIVE));
+        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.setStatus(request.getWorkoutId(), request.getUsername(), RecordStatus.ACTIVE));
     }
 
     @PreAuthorize(value = "hasAnyRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name()," +
             "T(com.thumbtack.school.workoutplanning.model.AuthType).CLIENT.name())")
     @PostMapping(path = "/queue", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public RecordDtoResponse insertInQueue(@Valid @RequestBody RecordDtoRequest request) throws BadRequestException {
-        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.insert(request.getWorkoutId(), request.getUsername(), RecordStatus.QUEUED));
+        return RecordMapper.INSTANCE.recordToDtoResponse(recordService.setStatus(request.getWorkoutId(), request.getUsername(), RecordStatus.QUEUED));
     }
 
     @PreAuthorize(value = "hasAnyRole(T(com.thumbtack.school.workoutplanning.model.AuthType).ADMIN.name()," +

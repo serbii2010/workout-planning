@@ -18,15 +18,17 @@ import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -43,11 +45,8 @@ public class WorkoutService {
     private EntityManager entityManager;
 
     public Workout findById(Long id) throws BadRequestException {
-        Optional<Workout> workout = workoutRepository.findById(id);
-        if (workout.isEmpty()) {
-            throw new BadRequestException(BadRequestErrorCode.WORKOUT_NOT_FOUND);
-        }
-        return workout.get();
+        return workoutRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(BadRequestErrorCode.WORKOUT_NOT_FOUND));
     }
 
     public List<Workout> generateWorkout(GenerateWorkoutDtoRequest request) throws BadRequestException {
@@ -135,11 +134,13 @@ public class WorkoutService {
                 throw new AccessDeniedException("Action forbidden");
             }
             User user = userService.findByUsername(AuthUtils.getUsername());
-            builder.with("user", Operator.EQUALS_USER, user);
-            builder.with("status", Operator.EQUALS_STATUS, recordStatus);
+            Map<String, Object> myFilter = new HashMap<>();
+            myFilter.put("user", user);
+            myFilter.put("status", recordStatus);
+            builder.with("status", Operator.EQUALS_STATUS_AND_USER, myFilter);
         }
         Specification<Workout> specification = builder.build();
-        return workoutRepository.findAll(specification);
+        return workoutRepository.findAll(specification, Sort.by("date", "timeStart").descending());
     }
 
     public void delete(Long id) throws BadRequestException {

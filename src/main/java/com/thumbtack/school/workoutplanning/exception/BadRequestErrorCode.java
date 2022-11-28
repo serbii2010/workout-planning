@@ -27,7 +27,12 @@ public enum BadRequestErrorCode {
     BAD_REDIRECT_URL("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication"), 
     CODE_EXPIRED("Restore code expired"),
     ACCOUNT_HAS_BAD_STATE("Account has bad state"),
-    CODE_NOT_FOUND("Code not found");
+    CODE_NOT_FOUND("Code not found"),
+    SUBSCRIPTION_NOT_FOUND("Subscription not found"),
+    BAD_STATUS("Bad status record"),
+    ACTIVATED_SUBSCRIPTION_ALREADY_EXISTS("Activated subscription already exists"),
+    ACTIVATED_SUBSCRIPTION_NOT_FOUND("Activated subscription not found"),
+    DATE_WORKOUT_IS_OUT_OF_SUBSCRIPTION_RANGE("Workout date is out of subscription range");
 
     private String error;
 

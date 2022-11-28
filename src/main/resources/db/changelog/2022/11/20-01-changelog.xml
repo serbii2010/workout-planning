@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1668926132599-1" author="user (generated)">
+        <createTable tableName="subscription">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subscription"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="DATETIME"/>
+            <column name="type" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1668926132599-2" author="user (generated)">
+        <createTable tableName="subscription_limited">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subscription_limited"/>
+            </column>
+            <column name="total" type="INT"/>
+            <column name="remaining" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1668926132599-3" author="user (generated)">
+        <createTable tableName="subscription_unlimited">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subscription_unlimited"/>
+            </column>
+            <column name="date_start" type="DATE"/>
+            <column name="count_month" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1668926132599-4" author="user (generated)">
+        <addColumn tableName="record">
+            <column name="subscription_id" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1668926132599-5" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="subscription_id" baseTableName="record"
+                                 constraintName="FK_RECORD_ON_SUBSCRIPTION" referencedColumnNames="id"
+                                 referencedTableName="subscription" referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet id="1668926132599-6" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="subscription_limited"
+                                 constraintName="FK_SUBSCRIPTION_LIMITED_ON_ID" referencedColumnNames="id"
+                                 referencedTableName="subscription" referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet id="1668926132599-7" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="subscription"
+                                 constraintName="FK_SUBSCRIPTION_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="user" referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet id="1668926132599-8" author="user (generated)">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="subscription_unlimited"
+                                 constraintName="FK_SUBSCRIPTION_UNLIMITED_ON_ID" referencedColumnNames="id"
+                                 referencedTableName="subscription" referencedTableSchemaName="public"/>
+    </changeSet>
+    <changeSet id="1668926132599-9" author="user (generated)">
+        <dropForeignKeyConstraint baseTableName="record" constraintName="fk_record_on_subscribe"/>
+    </changeSet>
+    <changeSet id="1668926132599-10" author="user (generated)">
+        <dropForeignKeyConstraint baseTableName="subscribe_limited" constraintName="fk_subscribe_limited_on_id"/>
+    </changeSet>
+    <changeSet id="1668926132599-11" author="user (generated)">
+        <dropForeignKeyConstraint baseTableName="subscribe" constraintName="fk_subscribe_on_user"/>
+    </changeSet>
+    <changeSet id="1668926132599-12" author="user (generated)">
+        <dropForeignKeyConstraint baseTableName="subscribe_unlimited" constraintName="fk_subscribe_unlimited_on_id"/>
+    </changeSet>
+    <changeSet id="1668926132599-13" author="user (generated)">
+        <dropTable cascadeConstraints="true" tableName="subscribe"/>
+    </changeSet>
+    <changeSet id="1668926132599-14" author="user (generated)">
+        <dropTable cascadeConstraints="true" tableName="subscribe_limited"/>
+    </changeSet>
+    <changeSet id="1668926132599-15" author="user (generated)">
+        <dropTable cascadeConstraints="true" tableName="subscribe_unlimited"/>
+    </changeSet>
+    <changeSet id="1668926132599-16" author="user (generated)">
+        <dropColumn columnName="subscribe_id" tableName="record"/>
+    </changeSet>
+
+</databaseChangeLog>

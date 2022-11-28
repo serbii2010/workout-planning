@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1669218367621-1" author="user (generated)">
+        <addColumn tableName="subscription_unlimited">
+            <column name="from_date" type="DATE"/>
+            <column name="to_date" type="DATE"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1669218367621-3" author="user (generated)">
+        <dropColumn columnName="count_month" tableName="subscription_unlimited"/>
+
+        <dropColumn columnName="date_start" tableName="subscription_unlimited"/>
+    </changeSet>
+
+</databaseChangeLog>

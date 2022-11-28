@@ -13,7 +13,7 @@ public class UserDtoResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private String phone;
     private String role;
+    private String phone;
     private Boolean isActive;
 }

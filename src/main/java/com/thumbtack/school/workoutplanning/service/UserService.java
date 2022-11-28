@@ -21,7 +21,6 @@ import com.thumbtack.school.workoutplanning.utils.EmailUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 import javax.servlet.http.Cookie;
@@ -31,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -126,7 +126,6 @@ public class UserService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             User user = userRepository.findByEmailOrUsername(username);
-
             throwNotNullOrBlocked(username, user);
 
             setJwtToken(user, response);
@@ -136,38 +135,17 @@ public class UserService {
         }
     }
 
-    public List<User> getAll() {
-        List<User> result = userRepository.findAll();
-        log.info("IN getAll - {} users found", result.size());
-        return result;
-    }
-
     public User findByUsername(String username) {
         User result = userRepository.findByUsername(username);
         log.info("IN findByUsername - user: {} found by username: {}", result, username);
         return result;
     }
 
-    public User findById(Long id) {
-        User result = userRepository.findById(id).orElse(null);
-
-        if (result == null) {
-            log.warn("IN findById - no user found by id: {}", id);
-            return null;
-        }
-
-        log.info("IN findById - user: {} found by id: {}", result, id);
-        return result;
-    }
-
-    public void delete(Long id) {
-        userRepository.deleteById(id);
-        log.info("IN delete - user with id: {} successfully deleted", id);
-    }
-
     public User update(String username, UpdateAccountDtoRequest request) throws AccessDeniedException {
         AuthType authType = AuthUtils.getRole();
         User user = userRepository.findByEmailOrUsername(username);
+        throwNotNullOrBlocked(username, user);
+
         boolean isAdmin = authType == AuthType.ADMIN;
         if (!AuthUtils.getUsername().equals(user.getUsername()) && !isAdmin) {
             throw new AccessDeniedException("Action forbidden");
@@ -189,26 +167,21 @@ public class UserService {
     }
 
     public List<User> getAllByRole(String roleName) throws BadRequestException {
-        if (roleName == null) {
-            throw new BadRequestException(BadRequestErrorCode.ROLE_NOT_FOUND);
-        }
         try {
             Role role = roleRepository.findByName(AuthType.valueOf(roleName.toUpperCase(Locale.ROOT)));
-            return userRepository.findAllByRole(role);
+            return userRepository.findAllByRole(role, Sort.by("username"));
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(BadRequestErrorCode.ROLE_NOT_FOUND);
         }
     }
 
     public User getById(Long id) throws BadRequestException, InternalException {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new BadRequestException(BadRequestErrorCode.USER_NOT_FOUND);
-        }
+        User user = userRepository.findById(id).orElseThrow(() -> new BadRequestException(BadRequestErrorCode.USER_NOT_FOUND));
+
         if (!AuthType.ADMIN.equals(AuthUtils.getRole()) && !id.equals(AuthUtils.getUserId())) {
-            throw new InternalException(InternalErrorCode.FORBIDDEN);
+            throw new AccessDeniedException(InternalErrorCode.FORBIDDEN.getErrorString());
         }
-        return user.get();
+        return user;
     }
 
     public void logout(HttpServletResponse response) {

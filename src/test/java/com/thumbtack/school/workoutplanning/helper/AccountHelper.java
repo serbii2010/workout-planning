@@ -5,6 +5,8 @@ import com.thumbtack.school.workoutplanning.dto.request.account.AuthDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.request.account.RegistrationDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.request.account.UpdateAccountDtoRequest;
 import com.thumbtack.school.workoutplanning.dto.response.account.AuthDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.response.account.RoleDtoResponse;
+import com.thumbtack.school.workoutplanning.dto.response.account.UserDtoResponse;
 import com.thumbtack.school.workoutplanning.model.AuthType;
 import javax.servlet.http.Cookie;
 import org.springframework.http.MediaType;
@@ -125,6 +127,27 @@ public class AccountHelper {
         );
     }
 
+    public static UpdateAccountDtoRequest getClientUpdateDtoRequest() {
+        return new UpdateAccountDtoRequest(
+                "client-f",
+                "tr",
+                "trainer1@workout.ru",
+                "8800-555-35-36"
+        );
+    }
+
+    public static AuthDtoResponse getClientAfterUpdate() {
+        return new AuthDtoResponse(
+                1L,
+                "client",
+                "client-f",
+                "tr",
+                "trainer1@workout.ru",
+                "8800-555-35-36",
+                AuthType.CLIENT.name()
+        );
+    }
+
     public static void registrationAdmin(MockMvc mvc, ObjectMapper mapper) throws Exception {
         RegistrationDtoRequest request = AccountHelper.getAdminRegistrationDroRequest();
 
@@ -200,7 +223,43 @@ public class AccountHelper {
                 .andReturn()
                 .getResponse()
                 .getCookie(JWT_TOKEN_NAME);
-
     }
 
+    public static RoleDtoResponse getRoleAdminDtoResponse() {
+        return  new RoleDtoResponse(AuthType.ADMIN.name());
+    }
+
+    public static RoleDtoResponse getRoleTrainerDtoResponse() {
+        return  new RoleDtoResponse(AuthType.TRAINER.name());
+    }
+
+    public static RoleDtoResponse getRoleClientDtoResponse() {
+        return  new RoleDtoResponse(AuthType.CLIENT.name());
+    }
+
+    public static UserDtoResponse getClientUserDtoResponse() {
+        return new UserDtoResponse(
+                1,
+                "client",
+                "clientFirst",
+                "clientLast",
+                "client@workoutplanning.com",
+                AuthType.CLIENT.name(),
+                "8800-555-3535",
+                true
+        );
+    }
+
+    public static UserDtoResponse getClientTwoUserDtoResponse() {
+        return new UserDtoResponse(
+                2,
+                "client2",
+                "clientFirst",
+                "clientLast",
+                "client2@workoutplanning.com",
+                AuthType.CLIENT.name(),
+                "8800-555-3535",
+                true
+        );
+    }
 }
