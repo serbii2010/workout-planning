@@ -88,7 +88,7 @@ public class SubscriptionService {
 
     public Subscription getActiveSubscriptionByUser(User client) {
         Subscription subscription = subscriptionRepository.findByUserAndIsActive(client, true).orElseThrow(
-                () -> new BadRequestException(BadRequestErrorCode.ACTIVATED_SUBSCRIPTION_NOT_FOUND)
+                () -> new AccessDeniedException(BadRequestErrorCode.ACTIVATED_SUBSCRIPTION_NOT_FOUND.getErrorString())
         );
         checkActivatedSubscription(subscription);
         return subscription;

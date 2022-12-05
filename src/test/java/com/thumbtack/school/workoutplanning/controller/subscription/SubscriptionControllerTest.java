@@ -197,19 +197,22 @@ class SubscriptionControllerTest {
 
     @Test
     void activate_deactivate() throws Exception {
-        SubscribeHelper.insertSubscribeUnlimited(mvc, mapper, adminCookie);
+        LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.parse("18:59:59"));
+        try(MockedStatic<LocalDateTime> dt = mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            dt.when(LocalDateTime::now).thenReturn(dateTime);
+            SubscribeHelper.insertSubscribeUnlimited(mvc, mapper, adminCookie);
+            SubscriptionActivateDtoRequest request = new SubscriptionActivateDtoRequest(false);
+            SubscriptionUnlimitedDtoResponse response = SubscribeHelper.getSubscribeUnlimitedDeactivateDtoResponse();
 
-        SubscriptionActivateDtoRequest request = new SubscriptionActivateDtoRequest(false);
-        SubscriptionUnlimitedDtoResponse response = SubscribeHelper.getSubscribeUnlimitedDeactivateDtoResponse();
-
-        mvc.perform(put("/api/subscriptions/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request))
-                        .cookie(adminCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
-                .andExpect(content().json(mapper.writeValueAsString(response)));
+            mvc.perform(put("/api/subscriptions/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request))
+                            .cookie(adminCookie))
+                    .andExpect(status().isOk())
+                    .andExpect(cookie().doesNotExist(JWT_TOKEN_NAME))
+                    .andExpect(content().json(mapper.writeValueAsString(response)));
+        }
     }
 
     @Test

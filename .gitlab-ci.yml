@@ -18,6 +18,6 @@ stages:
 compile_test:
   stage: compile_test
   script:
-    - mvn $MAVEN_CLI_OPTS clean compile test
+    - mvn $MAVEN_CLI_OPTS clean compile test checkstyle:checkstyle
   tags:
     - jdk_11
